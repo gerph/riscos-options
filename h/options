@@ -1,0 +1,86 @@
+/*******************************************************************
+ * File:     Options.h
+ * Purpose:  Options support handling
+ * Author:   Justin Fletcher
+ * Date:     15 Apr 1999
+ ******************************************************************/
+
+#ifndef OPTIONS_H
+#define OPTIONS_H
+
+#include "kernel.h"
+
+/**************************************************** JRF *********
+ Function:     readenum
+ Description:  Read an enumeration
+ Parameters:   string-> the string to match
+               list-> the enumeration blocks list
+ Returns:      index of the item, or -1 if not known
+ ******************************************************************/
+int readenum(char *string,char *list);
+
+/**************************************************** JRF *********
+ Function:     readbool
+ Description:  Read a boolean value
+ Parameters:   str-> string to decode
+ Returns:      0, 1, or -1 if not known
+ ******************************************************************/
+int readbool(char *str);
+
+/**************************************************** JRF *********
+ Function:     writevalue
+ Description:  Write a value into a group (creating the group if
+               necessary)
+ Parameters:   grps-> the file we're adding to
+               grpname-> the name of the group we're adding (to)
+               id-> the id we're adding (or NULL if it's a comment)
+               value-> the value to add (may be NULL for list groups)
+ Returns:      NULL if successful, error pointer if not
+ ******************************************************************/
+_kernel_oserror *writevalue(optg *grps,char *grpname,char *id,char *value);
+
+/**************************************************** JRF *********
+ Function:     readvalue
+ Description:  Read the value of an id
+ Parameters:   grps-> the file we're reading from
+               grpname-> the group name to read from
+               id-> the id we're trying to read
+ Returns:      pointer to value, or NULL if not valid
+ ******************************************************************/
+char *readvalue(optg *grps,char *grpname,char *id);
+
+/**************************************************** JRF *********
+ Function:     readgroup
+ Description:  Read a whole group entry from a file
+ Parameters:   grps-> the file we're reading from
+               grpname-> the group name to read from
+               flags = flags for transfer
+                        b0-7 = type
+                                0 = options
+                                1 = list
+                                undefined
+                        b8-31 = undefined
+               buffer-> buffer to place data in
+               buflen = buffer length (or -ve to return -ve length required)
+ Returns:      size of data written (or -ve size of buffer, or 0 if error)
+ ******************************************************************/
+int readgroup(optg *grps,char *grpname,int flags,char *buffer,int buflen);
+
+/**************************************************** JRF *********
+ Function:     writegroup
+ Description:  Write out a group
+ Parameters:   grps-> the file we're reading from
+               grpname-> the group name to read from
+               flags = flags for transfer
+                        b0-7 = type
+                                0 = options
+                                1 = list
+                                undefined
+                        b8-31 = undefined
+               buffer-> buffer to place data in
+               buflen = buffer length (or -ve to return -ve length required)
+ Returns:      error block if error
+ ******************************************************************/
+_kernel_oserror *writegroup(optg *grps,char *grpname,int flags,char **buffer);
+
+#endif

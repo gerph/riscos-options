@@ -1,0 +1,373 @@
+/*******************************************************************
+ * File:     Options.c
+ * Purpose:  Options support handling
+ * Author:   Justin Fletcher
+ * Date:     15 Apr 1999
+ ******************************************************************/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "optlist.h"
+#include "kernel.h"
+#include "jstring.h"
+
+/* Define this for debug */
+/* #define DEBUG */
+
+#define ERROR_BASE (1)
+
+_kernel_oserror NoMemory = { ERROR_BASE + 0, "No memory for options" };
+_kernel_oserror NoSuchGroup = { ERROR_BASE + 1, "No such group" };
+_kernel_oserror StupidFormat = { ERROR_BASE + 2, "Option type not known" };
+
+/**************************************************** JRF *********
+ Function:     readenum
+ Description:  Read an enumeration
+ Parameters:   string-> the string to match
+               list-> the enumeration blocks list
+ Returns:      index of the item, or -1 if not known
+ ******************************************************************/
+int readenum(char *string,char *list)
+{
+  int num=0;
+  if (string==NULL || list==NULL)
+    return -1;
+  while (*list!='\0')
+  {
+    if (stricmp(string,list)==0)
+      return num;
+    num++;
+    list+=strlen(list)+1;
+  }
+  return -1;
+}
+
+/**************************************************** JRF *********
+ Function:     readbool
+ Description:  Read a boolean value
+ Parameters:   str-> string to decode
+ Returns:      0, 1, or -1 if not known
+ ******************************************************************/
+int readbool(char *str)
+{
+  int num=readenum(str,"0\0"
+                       "no\0"
+                       "off\0"
+                       "false\0"
+                       "true\0"
+                       "yes\0"
+                       "on\0"
+                       "1\0");
+  if (num==-1)
+    return -1;
+  return num>3;
+}
+
+/**************************************************** JRF *********
+ Function:     writevalue
+ Description:  Write a value into a group (creating the group if
+               necessary)
+ Parameters:   grps-> the file we're adding to
+               grpname-> the name of the group we're adding (to)
+               id-> the id we're adding (or NULL if it's a comment)
+               value-> the value to add (may be NULL for list groups)
+ Returns:      NULL if successful, error pointer if not
+ ******************************************************************/
+_kernel_oserror *writevalue(optg *grps,char *grpname,char *id,char *value)
+{
+  opts *list=optg_find(grps,grpname);
+  optval *oval;
+  if (list==NULL)
+  {
+    list=opt_create(grpname,opt_options);
+    if (list==NULL)
+    {
+      return &NoMemory; /* we could not create the options list group */
+    }
+    if (optg_add(grps,list))
+    {
+      opt_destroy(list);
+      return &NoMemory; /* erm... we couldn't add the group - PANIC! */
+    }
+  }
+  oval=opt_findiopt(list,id);
+  if (oval==NULL)
+  { /* It's a new entry, so we must add it */
+    opt_add(list,id,0,value); /* add it */
+  }
+  else
+  {
+    if (opt_change(oval,value))
+      return &NoMemory;
+  }
+  return NULL;
+}
+
+/**************************************************** JRF *********
+ Function:     readvalue
+ Description:  Read the value of an id
+ Parameters:   grps-> the file we're reading from
+               grpname-> the group name to read from
+               id-> the id we're trying to read
+ Returns:      pointer to value, or NULL if not valid
+ ******************************************************************/
+char *readvalue(optg *grps,char *grpname,char *id)
+{
+  opts *list=optg_find(grps,grpname);
+  optval *oval;
+  if (list==NULL)
+    return NULL; /* No such group */
+
+  oval=opt_findiopt(list,id);
+  if (oval==NULL)
+    return NULL; /* No value */
+
+  return opt_value(oval);
+}
+
+/**************************************************** JRF *********
+ Function:     readgroup
+ Description:  Read a whole group entry from a file
+ Parameters:   grps-> the file we're reading from
+               grpname-> the group name to read from
+               flags = flags for transfer
+                        b0-7 = type
+                                0 = options
+                                1 = list
+                                undefined
+                        b8-31 = undefined
+               buffer-> buffer to place data in
+               buflen = buffer length (or -ve to return -ve length required)
+ Returns:      size of data written (or -ve size of buffer, or 0 if error)
+ ******************************************************************/
+int readgroup(optg *grps,char *grpname,int flags,char *buffer,int buflen)
+{
+  int spaceneeded=0;
+  opts *list=optg_find(grps,grpname);
+  char **tags=(char **)buffer; /* Block holding id/value information */
+  optval *oval;
+
+  if (list==NULL)
+    return 0; /* No such group */
+
+  oval=opt_firstopt(list);
+  /* First we work out how much space we actually need (if requested) */
+  switch (flags & 255)
+  {
+    case 0: /* options */
+      spaceneeded=8; /* 8 bytes for terminator pair */
+      buffer+=8;
+      while (oval!=NULL)
+      {
+        if (opt_id(oval)!=NULL)
+        {
+          spaceneeded+=8; /* 4 for id ptr, 4 for value ptr */
+          buffer+=8;      /* and the start of text buffer increases */
+          spaceneeded+=strlen(opt_id(oval))+1;
+          if (opt_value(oval))
+            spaceneeded+=strlen(opt_value(oval))+1;
+        }
+        oval=opt_nextopt(oval);
+      }
+      break;
+
+    case 1: /* list */
+      spaceneeded=2; /* 2 bytes for terminator pair */
+      while (oval!=NULL)
+      {
+        if (opt_id(oval)!=NULL)
+        {
+          spaceneeded+=strlen(opt_id(oval))+1;
+        }
+        oval=opt_nextopt(oval);
+      }
+      break;
+
+     default: /* Unknown */
+      return 0; /* We know nothing about that format, thanks */
+  }
+
+  if (tags==NULL || buflen<spaceneeded)
+  {
+#ifdef DEBUG
+    printf("readgroup: not enough room; need %i, got %i\n",spaceneeded,buflen);
+#endif
+    return -spaceneeded;
+  }
+
+  oval=opt_firstopt(list);
+  switch (flags & 255)
+  {
+    case 0: /* Options */
+      while (oval)
+      {
+        char *id,*value;
+        id=opt_id(oval);
+        if (id!=NULL)
+        {
+#ifdef DEBUG
+          printf("readgroup: fill id: %s\n",id);
+#endif
+          *tags++=buffer;
+           /* strcpy(buffer,id); */
+           buffer+=strlen(id)+1;
+          value=opt_value(oval);
+#ifdef DEBUG
+          printf("readgroup: fill value: %s\n",id ? id : "[None]");
+#endif
+          if (value!=NULL)
+          {
+            *tags++=buffer;
+            /* strcpy(buffer,value);  */
+            buffer+=strlen(value)+1;
+          }
+          else
+          {
+            *tags++=NULL;
+          }
+        }
+        oval=opt_nextopt(oval);
+      }
+      *tags++=NULL;
+      *tags++=NULL;
+      break;
+
+    case 1: /* List */
+      while (oval)
+      {
+        char *id;
+        id=opt_id(oval);
+        if (id!=NULL)
+        {
+          /* strcpy(buffer,id); */
+           buffer+=strlen(id)+1;
+        }
+        oval=opt_nextopt(oval);
+      }
+      *buffer++='\0';
+      *buffer++='\0';
+      break;
+  }
+
+  return spaceneeded;
+}
+
+/**************************************************** JRF *********
+ Function:     writegroup
+ Description:  Write out a group
+ Parameters:   grps-> the file we're reading from
+               grpname-> the group name to read from
+               flags = flags for transfer
+                        b0-7 = type
+                                0 = options
+                                1 = list
+                                undefined
+                        b8-31 = undefined
+               buffer-> buffer to place data in
+               buflen = buffer length (or -ve to return -ve length required)
+ Returns:      error block if error
+ ******************************************************************/
+_kernel_oserror *writegroup(optg *grps,char *grpname,int flags,char **buffer)
+{
+  opts *list=optg_find(grps,grpname);
+
+  if (list==NULL)
+  {
+#ifdef DEBUG
+    printf("Group doesn't exist; creating...\n");
+#endif
+    list=opt_create(grpname,flags & 255); /* Create an empty group */
+    if (list==NULL)
+      return &NoMemory;
+  }
+
+  switch (flags)
+  {
+    case 0:
+      { /* For the options list we have to merge the lists - that's fun */
+        char **entry=(char **)buffer;
+        optval *current;
+
+        while (entry[0] || entry[1])
+        {
+          optval *find;
+          if (entry!=NULL)
+          {
+#ifdef DEBUG
+            printf("Looking at %s\n",entry[0]);
+#endif
+            find=opt_findiopt(list,entry[0]);
+            if (find==NULL)
+            {
+#ifdef DEBUG
+              printf("Not found, so adding it...\n");
+#endif
+              if (opt_add(list,entry[0],0,entry[1]))
+                return &NoMemory;
+            }
+            else
+            {
+#ifdef DEBUG
+              printf("Found entry; changing it\n");
+#endif
+              if (opt_change(find,entry[1]))
+                return &NoMemory;
+            }
+          }
+          else
+          {
+            opt_add(list,NULL,0,entry[1]);
+          }
+
+          entry+=2;
+        }
+
+        current=opt_firstopt(list);
+
+#ifdef DEBUG
+        printf("Looking for dead entries\n");
+#endif
+        while (current)
+        {
+          optval *next=opt_nextopt(current);
+          char *id=opt_id(current);
+          if (id)
+          {
+            char **entry=(char **)buffer;
+#ifdef DEBUG
+            printf("Looking at %s\n",id);
+#endif
+            while (entry[0] || entry[1])
+            {
+              if (entry)
+              {
+                if (stricmp(entry[0],id)==0)
+                  break;
+              }
+              entry+=2;
+            }
+            if (!(entry[0] || entry[1]))
+              opt_remove(list,current);
+          }
+          current=next;
+        }
+      }
+      return NULL;
+      break;
+
+    case 1:
+      /* Hell, I've not written this bit yet */
+      break;
+  }
+  return &StupidFormat;
+}
+
+/**************************************************** JRF *********
+ Function:     readvalue
+ Description:  Read a particular value from a group
+ Parameters:   grps-> the file we're reading from
+               grpname-> the group name to read from
+               id-> the id we want to read
+ Returns:      none
+ ******************************************************************/
