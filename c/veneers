@@ -1,0 +1,142 @@
+/*******************************************************************
+ * File:     veneers
+ * Purpose:  Module veneers for Options module
+ * Author:   Justin Fletcher
+ * Date:     17 Jan 2000
+ ******************************************************************/
+
+#include <stdlib.h>
+#include <stdio.h>
+#include "module.h"
+#include "options.h"
+#include "textproc.h"
+
+/******************************************************************
+ Function:     Mod_Final
+ Description:  Shutdown the module and free everything
+ Parameters:   fatal = fatality indicator
+               podule_base-> hardware address of podule (none)
+               pw-> our private workspace
+ Returns:      pointer to error if failed, NULL otherwise
+ ******************************************************************/
+_kernel_oserror *Mod_Final(int fatal, int podule_base, void *pw)
+{
+  textproc_final();
+  return NULL;
+}
+
+/******************************************************************
+ Function:     Mod_SWI
+ Description:  SWI dispatcher
+ Parameters:   number = SWI number
+               r-> registers on entry
+               pw-> our private workspace
+ Returns:      pointer to error if failed, NULL otherwise
+ ******************************************************************/
+_kernel_oserror *Mod_SWI(int number, _kernel_swi_regs *r, void *pw)
+{
+  switch (number)
+  {
+    case Options_OpenFile - Options_00:
+      {
+        int result=openfile((opentype)r->r[0],(char*)r->r[1],
+                            (char*)r->r[2],(char*)r->r[3]);
+        if (result==BAD_OPENTYPE)
+          return err_BadOpenType;
+        if (result==BAD_CANTOPEN)
+          return err_CantOpen;
+        if (result==BAD_OUTOFMEMORY)
+          return err_CantOpen;
+        r->r[0]=result;
+        return NULL;
+      }
+      break;
+    case Options_CloseFile - Options_00:
+      {
+        optfile *file=getsafehandle(r->r[0]);
+        if (file==NULL)
+          return err_BadHandle;
+        return closefile(file);
+      }
+      break;
+    case Options_ReadGroup - Options_00:
+      {
+        int size;
+        optfile *file=getsafehandle(r->r[0]);
+        if (file==NULL)
+          return err_BadHandle;
+        size=readgroup(file->groups,(char*)r->r[1],r->r[2],(char*)r->r[3],
+                       r->r[4]);
+        if (size==0)
+          return err_CantConvert;
+        r->r[0]=size;
+      }
+      break;
+    case Options_WriteGroup - Options_00:
+      {
+        optfile *file=getsafehandle(r->r[0]);
+        _kernel_oserror *err;
+        if (file==NULL)
+          return err_BadHandle;
+        err=writegroup(file->groups,(char*)r->r[1],(int)r->r[2],
+                       (char**)r->r[3]);
+        if (err==NULL)
+          file->needtowrite=1;
+        return err;
+      }
+      break;
+    case Options_ReadValue - Options_00:
+      {
+        optfile *file=getsafehandle(r->r[0]);
+        if (file==NULL)
+          return err_BadHandle;
+        r->r[0]=(int)readvalue(file->groups,(char*)r->r[1],(int)r->r[2],
+                               (char*)r->r[3]);
+        if (r->r[0]==1)
+          return err_CantConvert; /* Mismatched types */
+      }
+      break;
+    case Options_WriteValue - Options_00:
+      {
+        optfile *file=getsafehandle(r->r[0]);
+        _kernel_oserror *err;
+        if (file==NULL)
+          return err_BadHandle;
+        err=writevalue(file->groups,(char*)r->r[1],(int)r->r[2],
+                       (char*)r->r[3],(char*)r->r[4]);
+        if (err==NULL)
+          file->needtowrite=1;
+        return err;
+      }
+      break;
+    case Options_DeleteValue - Options_00:
+      {
+        optfile *file=getsafehandle(r->r[0]);
+        _kernel_oserror *err;
+        if (file==NULL)
+          return err_BadHandle;
+        err=deletevalue(file->groups,(char*)r->r[1],(int)r->r[2],
+                       (char*)r->r[3]);
+        if (err==NULL)
+          file->needtowrite=1;
+        return err;
+      }
+      break;
+    case Options_ReadBoolean - Options_00:
+      {
+        int bool=readbool((char*)r->r[0]);
+        if (bool==-1)
+          return err_BadBool;
+        r->r[0]=bool;
+      }
+      break;
+    case Options_ReadEnum - Options_00:
+      {
+        r->r[0]=readenum((char*)r->r[0],(char*)r->r[1]);
+      }
+      break;
+    default:
+      return error_BAD_SWI;
+  }
+  return NULL;
+}

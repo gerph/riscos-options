@@ -97,10 +97,10 @@ void optg_show(FILE *file,optg *grp,char *term)
     grp=grp->next;
     if (grp!=NULL)
     {
-      if (grp->group->type!=opt_options)
-        fprintf(file,"[%s]\n",grp->group->name);
+      if (grp->group->type==opt_options)
+        fprintf(file,"[%s]%s",grp->group->name,term);
       else
-        fprintf(file,"[%s] Type %i\n",grp->group->name,grp->group->type);
+        fprintf(file,"[%s] Type %i%s",grp->group->name,grp->group->type,term);
     }
   }
 }
@@ -162,7 +162,7 @@ int opt_change(optval *opt,char *data)
       return 1;
   }
   else
-    nval=NULL;
+    nval=strdup("");
 
 #ifdef DEBUG
   printf("Freeing data at %p from %p\n",opt->value,opt);
@@ -170,6 +170,35 @@ int opt_change(optval *opt,char *data)
   if (opt->value!=NULL)
     free(opt->value);
   opt->value=nval;
+  return 0;
+}
+
+/*********************************************** <c> Gerph *********
+ Function:     opt_changeid
+ Description:  Change an id value
+ Parameters:   opt-> optval to change
+               name-> id to change to
+ Returns:      1 if failed, 0 otherwise
+ ******************************************************************/
+int opt_changeid(optval *opt,char *name)
+{
+  char *nval;
+  if (name!=NULL)
+  {
+    nval=strdup(name);
+    if (nval==NULL)
+      return 1;
+  }
+  else
+    nval=NULL;
+
+#ifdef DEBUG
+  printf("Freeing value at %p from %p\n",opt->id,opt);
+#endif
+
+  if (opt->id!=NULL)
+    free(opt->id);
+  opt->id=nval;
   return 0;
 }
 
@@ -207,6 +236,10 @@ int opt_add(opts *opt,char *id,int indent,char *data)
   else
     noptval->value=NULL;
 
+#ifdef DEBUG
+  printf("opt_add: opt->head = %p opt->tail=%p noptval=%p\n",
+         opt->head,opt->tail,noptval);
+#endif
   if (opt->head==NULL)
   {
     opt->head=noptval;
@@ -242,6 +275,10 @@ optval *opt_nextopt(optval *opt)
   return opt->next;
 }
 
+/* Ok, these defines will make the following code better */
+#define opt_firstopt(opt) ((opt)->head)
+#define opt_nextopt(opt) ((opt)->next)
+
 /*********************************************** <c> Gerph *********
  Function:     opt_remove
  Description:  Remove a block
@@ -267,6 +304,7 @@ optval *opt_remove(opts *top,optval *opt)
     }
     last=cur; cur=next; /* move on to next */
   }
+  top->tail=last;
   return NULL;
 }
 
@@ -313,6 +351,9 @@ optg *optg_readfile(char *file)
 
   olist=ogrp->group; /* Start with the default group */
 
+#ifdef DEBUG
+  printf("optg_readfile: loading file %s\n",file);
+#endif
   textf=loadfile(file,&textlen);
   if (textf==NULL)
   {
@@ -326,14 +367,15 @@ optg *optg_readfile(char *file)
     char *id,*value;
     int indent=0;
 
-    while (*line==' ' || *line=='\t')
-      indent++,line++;
-
     if (*line=='#')
     { /* It's a comment */
       opt_add(olist,NULL,indent,&line[1]);
       continue;
     }
+
+    while (*line==' ' || *line=='\t')
+      indent++,line++;
+
     if (*line=='[')
     { /* It's a new group - not finished */
       opttype grptype=opt_options;
@@ -348,6 +390,10 @@ optg *optg_readfile(char *file)
 
       if ((endbracket=strileftcmp(endbracket,"type"))!=NULL)
         grptype=(opttype)strtoul(endbracket,&endbracket,10);
+
+#ifdef DEBUG
+      printf("optg_readfile: adding group %s\n",&line[1]);
+#endif
 
       olist=opt_create(&line[1],grptype);
       if (olist==NULL)
@@ -408,6 +454,10 @@ optg *optg_readfile(char *file)
 
     if (id[0]=='\0')
       id=NULL,value=NULL; /* If the ID is null then it must be invalid */
+
+#ifdef DEBUG
+    printf("optg_readfile: adding item %s:%s\n",id,value);
+#endif
 
     if (opt_add(olist,id,indent,value))
     { /* It failed to add the entry - we've got to abort */
@@ -490,6 +540,28 @@ optval *opt_findopt(opts *opt,char *find)
 }
 
 /*********************************************** <c> Gerph *********
+ Function:     opt_findoptbynum
+ Description:  Find a particular optval of opt in a opt block, given
+               its line number
+ Parameters:   opt-> opt list to search
+               num = the line to look at
+ Returns:      pointer to optval entry, or NULL if not found
+ ******************************************************************/
+optval *opt_findoptbynum(opts *opt,int num)
+{
+  optval *now=opt_firstopt(opt);
+  if (num<0)
+    return NULL; /* Not known */
+  while (num-- && now)
+  {
+    do
+      now=opt_nextopt(now);
+    while (now && (opt_id(now)==NULL));
+  }
+  return now;
+}
+
+/*********************************************** <c> Gerph *********
  Function:     opt_findiopt
  Description:  Find a particular optval of opt in a opt block
                insensitively
@@ -500,9 +572,15 @@ optval *opt_findopt(opts *opt,char *find)
 optval *opt_findiopt(opts *opt,char *find)
 {
   optval *now=opt_firstopt(opt);
+#ifdef DEBUG
+  printf("opt_findiopt: find %s (firstp=%p)\n",find,now);
+#endif
   while (now!=NULL)
   {
     char *id=opt_id(now);
+#ifdef DEBUG
+    printf("Looking at %s\n",id);
+#endif
     if (id && stricmp(find,id)==0)
       return now;
     now=opt_nextopt(now);

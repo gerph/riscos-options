@@ -1,9 +1,10 @@
-<funcspec title="Options module">
-<thisissue number=1 revision="Draft">
+<thisissue number=1 revision="5">
 <thisdate changed="14 Jan 1999">
 <thisauthors name="Matthew Bullock">
 <thisauthors name="Justin Fletcher">
-<thisdistribution type="Company">   
+<thisdistribution type="Developer">   
+
+<funcspec title="Options module">
 <status>
 
 <!-- Quick jumping to the contents of this document -->
@@ -38,6 +39,14 @@
   Added SWI chunk allocation and began updating documentation to match the
   actual implementation.
  </revision>
+ <revision number=4 date="17 Jan 2000" author="JF">
+  Miscellaneous changes to tidy up for the developer CD.
+ </revision>
+ <revision number=5 date="18 Jan 2000" author="JF">
+  Updates for implementation. ReadEnum is now a comma separated list, rather
+  than a 0 separated list. The latter is a pain to use from BASIC. Added
+  DeleteValue SWI.
+ </revision>
 </history>
 
 <!-- An overview of this document -->
@@ -70,7 +79,7 @@ There is no user interface for this specification.
 The programmer interface is incomplete and may change without notice.
 
 <swi_base name="Options">
-<swi number="&amp;52F80" name="OpenFile" description="Open an options file">
+<swi number="52F80" name="OpenFile" description="Open an options file">
 <swi_in>
  <swi_reg r=0>Flags :
               <bittable>
@@ -112,7 +121,7 @@ written to <code>&lt;directory&gt;.&lt;leafname&gt;</code>.
 </swi_use>
 </swi>
 
-<swi number="&amp;52F81" name="CloseFile" description="Close a file, writing out any changes that are pending">
+<swi number="52F81" name="CloseFile" description="Close a file, writing out any changes that are pending">
 <swi_in>
  <swi_reg r=0>Opaque file handle</swi_reg>
 </swi_in>
@@ -124,7 +133,7 @@ not be written.
 </swi_use>
 </swi>
 
-<swi number="&amp;52F82" name="ReadGroup" description="Reads in a group description block to produce a value/tag array">
+<swi number="52F82" name="ReadGroup" description="Reads in a group description block to produce a value/tag array">
 <swi_in>
  <swi_reg r=0>Opaque file handle</swi_reg>
  <swi_reg r=1>Pointer to group name</swi_reg>
@@ -140,11 +149,12 @@ not be written.
                <bit number="8-31">Reserved, must be 0</bit>
               </bittable>
               </swi_reg>
- <swi_reg r=3>Pointer to buffer, or 0 to return size of buffer required</swi_reg>
+ <swi_reg r=3>Pointer to buffer</swi_reg>
+ <swi_reg r=4>Length of buffer, or -ve to return size of buffer</swi_reg>
 </swi_in>
 
 <swi_out>
- <swi_reg r=0>Buffer size required, if r3 = 0 on entry</swi_reg>
+ <swi_reg r=0>size of data written, or -ve size of buffer needed</swi_reg>
 </swi_out>
 
 <swi_use>
@@ -163,7 +173,7 @@ immediately following each other.
 </swi_use>
 </swi>
 
-<swi number="&amp;52F83" name="WriteGroup" description="Writes a group description block to the options file">
+<swi number="52F83" name="WriteGroup" description="Writes a group description block to the options file">
 <swi_in>
  <swi_reg r=0>Opaque file handle</swi_reg>
  <swi_reg r=1>Pointer to group name</swi_reg>
@@ -184,15 +194,29 @@ immediately following each other.
 
 <swi_use>
 This SWI is used to write data from a descriptions block to a file.
-The contents of the buffer should be in the same format as for Options_ReadGroup.
+The contents of the buffer should be in the same format as for
+Options_ReadGroup. The group type must match that of the group being written
+to, otherwise an error will be generated.
 </swi_use>
 </swi>
 
-<swi number="&amp;52F84" name="ReadValue" description="Reads the value of a single options tag">
+<swi number="52F84" name="ReadValue" description="Reads the value of a single options tag">
 <swi_in>
  <swi_reg r=0>Opaque file handle</swi_reg>
  <swi_reg r=1>Pointer to group name</swi_reg>
- <swi_reg r=2>Pointer to tag name</swi_reg>
+ <swi_reg r=2>Flags :
+              <bittable>
+               <bit number="0-7">Group type :
+                                 <valuetable>
+                                  <value number="0">Options format</value>
+                                  <value number="1">List format</value>
+                                  <value number="other">Reserved</value>
+                                 </valuetable>
+                                 </bit>
+               <bit number="8-31">Reserved</bit>
+              </bittable>
+              </swi_reg>
+ <swi_reg r=3>Pointer to tag name</swi_reg>
 </swi_in>
 
 <swi_out>
@@ -200,17 +224,29 @@ The contents of the buffer should be in the same format as for Options_ReadGroup
 </swi_out>
 
 <swi_use>
-This SWI is used to read the value of a single option. The returned string should be
-considered read only.
+This SWI is used to read the value of a single option. The returned string
+should be considered read only.
 </swi_use>
 </swi>
 
-<swi number="&amp;52F85" name="WriteValue" description="Writes the value of a single options tag">
+<swi number="52F85" name="WriteValue" description="Writes the value of a single options tag">
 <swi_in>
  <swi_reg r=0>Opaque file handle</swi_reg>
  <swi_reg r=1>Pointer to group name</swi_reg>
- <swi_reg r=2>Pointer to tag name</swi_reg>
- <swi_reg r=3>Pointer to tag value</swi_reg>
+ <swi_reg r=2>Flags :
+              <bittable>
+               <bit number="0-7">Group type :
+                                 <valuetable>
+                                  <value number="0">Options format</value>
+                                  <value number="1">List format</value>
+                                  <value number="other">Reserved</value>
+                                 </valuetable>
+                                 </bit>
+               <bit number="8-31">Reserved</bit>
+              </bittable>
+              </swi_reg>
+ <swi_reg r=3>Pointer to tag name, or line number for list format</swi_reg>
+ <swi_reg r=4>Pointer to tag value</swi_reg>
 </swi_in>
 
 <swi_use>
@@ -218,14 +254,34 @@ This SWI is used to write the value of a single option.
 </swi_use>
 </swi>
 
-<swi number="&amp;52F86" name="ReadBool" description="Converts a string into a boolean value">
+<swi number="52F86" name="DeleteValue" description="Removes an option from a group">
+<swi_in>
+ <swi_reg r=0>Opaque file handle</swi_reg>
+ <swi_reg r=1>Pointer to group name</swi_reg>
+ <swi_reg r=2>Flags :
+              <bittable>
+               <bit number="0-7">Group type :
+                                 <valuetable>
+                                  <value number="0">Options format</value>
+                                  <value number="1">List format</value>
+                                  <value number="other">Reserved</value>
+                                 </valuetable>
+                                 </bit>
+               <bit number="8-31">Reserved</bit>
+              </bittable>
+              </swi_reg>
+ <swi_reg r=3>Pointer to tag name, or line number for list format</swi_reg>
+</swi_in>
+
+<swi_use>
+This SWI is used to remove a single option.
+</swi_use>
+</swi>
+
+<swi number="52F87" name="ReadBoolean" description="Converts a string into a boolean value">
 <swi_in>
  <swi_reg r=0>Pointer to a string</swi_reg>
 </swi_in>
-
-<swi_out>
- <swi_reg r=0>0 or 1 depending on the contents of the string</swi_reg>
-</swi_out>
 
 <swi_use>
 <p>This SWI will convert a string into a boolean value.
@@ -243,10 +299,10 @@ This SWI is used to write the value of a single option.
 </swi_use>
 </swi>
 
-<swi number="&amp;52F86" name="ReadEnum" description="Converts a string into a integer value">
+<swi number="52F88" name="ReadEnum" description="Converts a string into a integer value">
 <swi_in>
  <swi_reg r=0>Pointer to a string</swi_reg>
- <swi_reg r=1>Pointer to an array of strings</swi_reg>
+ <swi_reg r=1>Pointer to a comma separated list of strings</swi_reg>
 </swi_in>
 
 <swi_out>
@@ -255,9 +311,9 @@ This SWI is used to write the value of a single option.
 </swi_out>
 
 <swi_use>
-<p>This SWI will convert a string into a index value.
-<p>The string array is a series of 0 terminated strings immediately following
-each other, terminated by a single 0 byte.
+<p>This SWI will convert a string into a index value. The string being
+matched can contain any character except controls and a comma. The strings
+will be matched case insensitively.
 
 </swi_use>
 </swi>
@@ -282,7 +338,7 @@ newline terminated strings.
 format:
 
 <P><code>&lt;spaces&gt;tag name&lt;spaces&gt;:&lt;spaces&gt;value&lt;spaces&gt;\n</code>
-<P>Where <code>&lt;spaces&gt;</code> is 0 or more space or tabs.
+<P>Where <code>&lt;spaces&gt;</code> is 0 or more spaces or tabs.
 <P>An example options file would be:
 <pre>
 # choices file for widget
@@ -298,6 +354,10 @@ somevalue    : 42
 window width : 332
 auto open    : Yes
 </pre>
+
+<p>Items at the start of a file (before any group is declared) are deemed to
+be in the group $. Group names are case insensitive. Tag entries are case
+insensitive.
 
 <!-- Other related software/hardware/protocols required -->
 <section name="External dependencies" tag="external">
@@ -333,8 +393,9 @@ This section has not been written.
 
 <!-- Questions, problems and other things which are not resolved -->
 <section name="Outstanding issues" tag="outstanding">
-The implementation of the read and write single value has got to be worked on but I
-think that the whole file could be parsed when it is first opened. That way the values
-would already be in memory so direct pointers could be returned.
+The implementation of the read and write single value has got to be worked on
+but I think that the whole file could be parsed when it is first opened. That
+way the values would already be in memory so direct pointers could be
+returned.
 </funcspec>
 

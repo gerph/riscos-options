@@ -8,6 +8,17 @@
 #ifndef CHOICES_H
 #define CHOICES_H
 
+/**************************************************** JRF *********
+ Function:     fexists
+ Description:  Does a file/directory exist ?
+ Parameters:   file-> filename
+ Returns:      0 if nothing there,
+               1 if file
+               2 if directory
+               3 if image
+ ******************************************************************/
+int fexists(char *file);
+
 /*********************************************** <c> Gerph *********
  Function:     Config_GetFilename
  Description:  Read the name of a config file

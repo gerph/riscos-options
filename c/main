@@ -15,9 +15,19 @@
 /* From OSLib */
 #include "os.h"
 
+/* #define TEST_READFILE */
+/* #define TEST_CREATEFILE */
+/* #define TEST_FILENAMING */
+/* #define TEST_OPTIONS_READ_OPTIONS */
+/* #define TEST_OPTIONS_READ_LIST */
+/* #define TEST_LIST_READ_OPTIONS */
+/* #define TEST_LIST_READ_LIST */
+/* #define TEST_WRITE_GROUP */
+/* #define TEST_CLOSEFILE */
+
 int main(void)
 {
-#if 0
+#ifdef TEST_READFILE
   optg *opts=optg_readfile("options");
   if (opts==NULL)
     printf("[No file read]\n");
@@ -25,13 +35,13 @@ int main(void)
     optg_show(stdout,opts,"\n");
 #endif
 
-#if 0
+#ifdef TEST_CREATEFILE
   /* Test 'create file' */
   ensuredir("alt.binaries.pictures.porn.helen.rayner"); /* <giggle> */
   ensuredir("testing");
 #endif
 
-#if 0
+#ifdef TEST_FILENAMING
   /* Test 'Get name of options file' */
   {
     char read[os_FILE_NAME_LIMIT];
@@ -47,7 +57,7 @@ int main(void)
   }
 #endif
 
-#if 0
+#ifdef TEST_OPTIONS_READ_OPTIONS
   printf(">test the group \"options reading options\" code\n");
   {
     int size;
@@ -85,7 +95,7 @@ int main(void)
   }
 #endif
 
-#if 0
+#ifdef TEST_OPTIONS_READ_LIST
   printf(">test the group \"options reading list\" code\n");
   {
     int size;
@@ -123,7 +133,7 @@ int main(void)
   }
 #endif
 
-#if 0
+#ifdef TEST_LIST_READ_OPTIONS
   printf(">test the group \"list reading options\" code\n");
   {
     int size;
@@ -158,7 +168,7 @@ int main(void)
   }
 #endif
 
-#if 0
+#ifdef TEST_LIST_READ_LIST
   printf(">test the group \"list reading list\" code\n");
   {
     int size;
@@ -193,7 +203,7 @@ int main(void)
   }
 #endif
 
-#if 1
+#ifdef TEST_WRITE_GROUP
   /* Test that write group works */
   {
     /* optg *grp=optg_create(); */
@@ -225,4 +235,9 @@ int main(void)
     }
   }
 #endif
+
+#ifdef TEST_CLOSEFILE
+  /* Test that closing a file works */
+#endif
+
 }

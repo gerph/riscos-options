@@ -12,7 +12,7 @@
 #define SKIPPREWS(x)  do { x--; } while ((x[0]==' ') || (x[0]=='\t'))
 /* skip succeeding whitespace, leave x pointing to the first character */
 /* #define SKIPPOSTWS(x) x+=strspn(x," \t") */
-#define SKIPPOSTWS(x) do { x++; } while ((x[0]==' ') || (x[0]=='\t'))
+#define SKIPPOSTWS(x) while ((x[0]==' ') || (x[0]=='\t')) { x++; }
 
 /*********************************************** <c> Gerph *********
  Function:     loadfile
@@ -43,5 +43,13 @@ char *findnextws(char *p);
                as you don't call readline again)
  ******************************************************************/
 char *readline(char *block, int blklen, int *theoffset);
+
+/******************************************************************
+ Function:     textproc_final
+ Description:  Free up any workspace we've used
+ Parameters:   none
+ Returns:      none
+ ******************************************************************/
+void textproc_final(void);
 
 #endif

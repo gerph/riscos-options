@@ -119,6 +119,15 @@ optg *optg_readfile(char *file);
 int opt_change(optval *opt,char *data);
 
 /*********************************************** <c> Gerph *********
+ Function:     opt_changeid
+ Description:  Change an id value
+ Parameters:   opt-> optval to change
+               name-> id to change to
+ Returns:      1 if failed, 0 otherwise
+ ******************************************************************/
+int opt_changeid(optval *opt,char *name);
+
+/*********************************************** <c> Gerph *********
  Function:     opt_add
  Description:  Add an option to the opt block
  Parameters:   opt-> opt block
@@ -179,6 +188,16 @@ void opt_show(FILE *file,opts *opt,char *term);
  Returns:      pointer to optval entry, or NULL if not found
  ******************************************************************/
 optval *opt_findopt(opts *opt,char *find);
+
+/*********************************************** <c> Gerph *********
+ Function:     opt_findoptbynum
+ Description:  Find a particular optval of opt in a opt block, given
+               its line number
+ Parameters:   opt-> opt list to search
+               num = the line to look at
+ Returns:      pointer to optval entry, or NULL if not found
+ ******************************************************************/
+optval *opt_findoptbynum(opts *opt,int num);
 
 /*********************************************** <c> Gerph *********
  Function:     opt_findiopt

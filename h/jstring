@@ -21,6 +21,19 @@
 int stricmp(char *str1,char *str2);
 
 /*********************************************** <c> Gerph *********
+ Function:     stricmp_toacomma
+ Description:  Case insensitive comparison, terminating on a comma
+               and returning the 'end point'
+ Parameters:   str1 = one string (the main one, with commas in)
+               str2 = the other one
+               strp-> the end of the string
+ Returns:      <0 if str1 < str2
+               >0 if str1 > str2
+               =0 if str1 = str2
+ ******************************************************************/
+int stricmp_toacomma(char *str1,char *str2,char **strp);
+
+/*********************************************** <c> Gerph *********
  Function:     strleftcmp
  Description:  Compare the leftmost characters of the string
  Parameters:   str-> the string we're comparing to

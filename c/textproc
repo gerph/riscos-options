@@ -86,6 +86,9 @@ char *findnextws(char *p)
   return p;
 }
 
+static char *res=NULL;
+static int reslen=-1;
+
 /*********************************************** <c> Gerph *********
  Function:     readline
  Description:  Read a line from memory, concatenating the bits with
@@ -99,8 +102,6 @@ char *findnextws(char *p)
 char *readline(char *block, int blklen, int *theoffset)
 {
   int p=*theoffset;
-  static char *res=NULL;
-  static int reslen=-1;
 
   int outp=0; /* the offset of the output */
 
@@ -169,3 +170,14 @@ char *readline(char *block, int blklen, int *theoffset)
   } while (1);
 }
 
+/******************************************************************
+ Function:     textproc_final
+ Description:  Free up any workspace we've used
+ Parameters:   none
+ Returns:      none
+ ******************************************************************/
+void textproc_final(void)
+{
+  if (res!=NULL)
+    free(res);
+}
