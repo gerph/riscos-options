@@ -369,5 +369,23 @@ _kernel_oserror *writegroup(optg *grps,char *grpname,int flags,char **buffer)
  Parameters:   grps-> the file we're reading from
                grpname-> the group name to read from
                id-> the id we want to read
- Returns:      none
+               buffer-> buffer to store into
+               buflen = length of buffer
+ Returns:      number of characters written, or -ve number of characters
+               needed, or 0 if failed
  ******************************************************************/
+int readvalue(optg *grps,char *grpname,char *id,char *buffer,int buflen)
+{
+  opts *list=optg_find(grps,grpname);
+  optval *val;
+
+  if (list==NULL)
+  {
+#ifdef DEBUG
+    printf("Group doesn't exist\n");
+#endif
+    return 0; /* No such group, so return error code */
+  }
+
+  val=opt_find(list,
+}
