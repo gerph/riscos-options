@@ -5,9 +5,13 @@
  * Date:     13 Apr 1999
  ******************************************************************/
 
+#include <stdlib.h>
 #include <stdio.h>
 #include "optlist.h"
 #include "choices.h"
+
+/* From OSLib */
+#include "os.h"
 
 int main(void)
 {
@@ -19,6 +23,23 @@ int main(void)
     optg_show(stdout,opts,"\n");
 #endif
 
+#if 0
   /* Test 'create file' */
-  ensuredir("alt.binaries.pictures.porn.helen.rayner");
+  ensuredir("alt.binaries.pictures.porn.helen.rayner"); /* <giggle> */
+  ensuredir("testing");
+#endif
+
+  /* Test 'Get name of options file' */
+  {
+    char read[os_FILE_NAME_LIMIT];
+    char write[os_FILE_NAME_LIMIT];
+    system("Set Choices$Write @.test.Choices");
+    system("Set Choices$Path  @.test.Choices.");
+#define TEST(y,z) Config_GetFilename(read,"Test",y,z,0); \
+                  Config_GetFilename(write,"Test",y,z,1); \
+                  printf("Read  %s,%s -> %s\n",y,z,read); \
+                  printf("Write %s,%s -> %s\n",y,z,write);
+    TEST("Forecast","test.Forecast");
+    TEST("WWW.Browse","test.www.browse");
+  }
 }

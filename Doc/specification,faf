@@ -76,7 +76,14 @@
      <td>16 Jan 1999</td>
      <td>MB</td>
      <td>
- Finialised the SWI specification and added the file format
+  Finalised the SWI specification and added the file format
+ </td><br></tr>
+  <tr><td>3</td>
+     <td>15 Apr 1999</td>
+     <td>JF</td>
+     <td>
+  Added SWI chunk allocation and began updating documentation to match the
+  actual implementation.
  </td><br></tr>
 </table>
 
@@ -112,7 +119,7 @@ There is no user interface for this specification.
 The programmer interface is incomplete and may change without notice.
 
 
-<a name="swi_OpenFile"></a><h5 align=right>Options_OpenFile (SWI ?)</h5>
+<a name="swi_OpenFile"></a><h5 align=right>Options_OpenFile (SWI &amp;52F80)</h5>
 <p align=right><em>Open an options file</em>
 <p>
 <table>
@@ -129,7 +136,7 @@ The programmer interface is incomplete and may change without notice.
                 <ul><!-- indent -->
 
 <table>
-<tr><th align=left>Value</th><th align=left>Meaning</th><br></tr>
+ <tr><th align=left>Value</th><th align=left>Meaning</th><br></tr>
 
                 <tr><td valign=top>0</td><td>R1 contains absolute filename</td><br></tr>
                 <tr><td valign=top>1</td><td>R1 contains the leaf name<br>
@@ -171,7 +178,7 @@ written to <code>&lt;directory&gt;.&lt;leafname&gt;</code>.
 </td><br></tr>
 </table>
 
-<a name="swi_CloseFile"></a><h5 align=right>Options_CloseFile (SWI ?)</h5>
+<a name="swi_CloseFile"></a><h5 align=right>Options_CloseFile (SWI &amp;52F81)</h5>
 <p align=right><em>Close a file, writing out any changes that are pending</em>
 <p>
 <table>
@@ -189,7 +196,7 @@ not be written.
 </td><br></tr>
 </table>
 
-<a name="swi_ReadGroup"></a><h5 align=right>Options_ReadGroup (SWI 0)</h5>
+<a name="swi_ReadGroup"></a><h5 align=right>Options_ReadGroup (SWI &amp;52F82)</h5>
 <p align=right><em>Reads in a group description block to produce a value/tag array</em>
 <p>
 <table>
@@ -208,7 +215,7 @@ not be written.
                                  <ul><!-- indent -->
 
 <table>
-<tr><th align=left>Value</th><th align=left>Meaning</th><br></tr>
+ <tr><th align=left>Value</th><th align=left>Meaning</th><br></tr>
 
                                   <tr><td valign=top>0</td><td>Options format</td><br></tr>
                                   <tr><td valign=top>1</td><td>List format</td><br></tr>
@@ -255,7 +262,7 @@ immediately following each other.
 </td><br></tr>
 </table>
 
-<a name="swi_WriteGroup"></a><h5 align=right>Options_WriteGroup (SWI ?)</h5>
+<a name="swi_WriteGroup"></a><h5 align=right>Options_WriteGroup (SWI &amp;52F83)</h5>
 <p align=right><em>Writes a group description block to the options file</em>
 <p>
 <table>
@@ -274,7 +281,7 @@ immediately following each other.
                                  <ul><!-- indent -->
 
 <table>
-<tr><th align=left>Value</th><th align=left>Meaning</th><br></tr>
+ <tr><th align=left>Value</th><th align=left>Meaning</th><br></tr>
 
                                   <tr><td valign=top>0</td><td>Options format</td><br></tr>
                                   <tr><td valign=top>1</td><td>List format</td><br></tr>
@@ -296,7 +303,7 @@ The contents of the buffer should be in the same format as for Options_ReadGroup
 </td><br></tr>
 </table>
 
-<a name="swi_ReadValue"></a><h5 align=right>Options_ReadValue (SWI ?)</h5>
+<a name="swi_ReadValue"></a><h5 align=right>Options_ReadValue (SWI &amp;52F84)</h5>
 <p align=right><em>Reads the value of a single options tag</em>
 <p>
 <table>
@@ -320,7 +327,7 @@ considered read only.
 </td><br></tr>
 </table>
 
-<a name="swi_WriteValue"></a><h5 align=right>Options_WriteValue (SWI ?)</h5>
+<a name="swi_WriteValue"></a><h5 align=right>Options_WriteValue (SWI &amp;52F85)</h5>
 <p align=right><em>Writes the value of a single options tag</em>
 <p>
 <table>
@@ -339,7 +346,7 @@ This SWI is used to write the value of a single option.
 </td><br></tr>
 </table>
 
-<a name="swi_ReadBool"></a><h5 align=right>Options_ReadBool (SWI ?)</h5>
+<a name="swi_ReadBool"></a><h5 align=right>Options_ReadBool (SWI &amp;52F86)</h5>
 <p align=right><em>Converts a string into a boolean value</em>
 <p>
 <table>
@@ -358,23 +365,25 @@ This SWI is used to write the value of a single option.
 <tr><td width=35></td><td colspan=2>
 <p>This SWI will convert a string into a boolean value.
 <p>The strings are converted as follows, ignoring case:
-<ul><!-- indent -->
+ <ul><!-- indent -->
+
 <table>
- <tr><th align=center>String</th> <th align=center>Boolean value</th></tr>
- <tr><td align=center>true</td> <td align=center>TRUE (1)</td></tr>
- <tr><td align=center>yes</td> <td align=center>TRUE (1)</td></tr>
- <tr><td align=center>on</td> <td align=center>TRUE (1)</td></tr>
- <tr><td align=center>1</td> <td align=center>TRUE (1)</td></tr>
- <tr><td align=center>0</td> <td align=center>FALSE (0)</td></tr>
- <tr><td align=center>no</td> <td align=center>FALSE (0)</td></tr>
- <tr><td align=center>off</td> <td align=center>FALSE (0)</td></tr>
- <tr><td align=center>false</td> <td align=center>FALSE (0)</td></tr>
-</table>
+ <tr><th align=left>String</th><th align=left>Boolean value</th><br></tr>
+
+  <tr><td valign=top>true</td><td>TRUE (1)</td><br></tr>
+  <tr><td valign=top>yes</td><td>TRUE (1)</td><br></tr>
+  <tr><td valign=top>on</td><td>TRUE (1)</td><br></tr>
+  <tr><td valign=top>1</td><td>TRUE (1)</td><br></tr>
+  <tr><td valign=top>0</td><td>FALSE (0)</td><br></tr>
+  <tr><td valign=top>no</td><td>FALSE (0)</td><br></tr>
+  <tr><td valign=top>off</td><td>FALSE (0)</td><br></tr>
+  <tr><td valign=top>false</td><td>FALSE (0)</td><br></tr>
+ </table>
 </ul><!-- end indent -->
 </td><br></tr>
 </table>
 
-<a name="swi_ReadEnum"></a><h5 align=right>Options_ReadEnum (SWI ?)</h5>
+<a name="swi_ReadEnum"></a><h5 align=right>Options_ReadEnum (SWI &amp;52F86)</h5>
 <p align=right><em>Converts a string into a integer value</em>
 <p>
 <table>
@@ -394,24 +403,32 @@ This SWI is used to write the value of a single option.
 <tr><th colspan=3 align=left>Use</th><br></tr>
 <tr><td width=35></td><td colspan=2>
 <p>This SWI will convert a string into a index value.
-<p>The string array is a series of 0 terminated strings immediately following each other,
-terminated by a single 0 byte.
+<p>The string array is a series of 0 terminated strings immediately following
+each other, terminated by a single 0 byte.
+
 </td><br></tr>
 </table>
 
 <!-- Data formats produced, or used by this document -->
 <a name="formats"></a>
 <h3 align=center>Data formats</h3>
-<P>The options files are standard RiscOS text files. Any whitespace (space or tab) at the
-beginning or end of a line will be ignored. Any line where the first non-whitespace
-character is '#' is a comment line and will be ignored as will any lines consisting of
-only whitespace.
-<P>The file consists of a series of groups delimited by group name specifiers.
-A group name specifier starts with '[' followed by the name, which may contain spaces,
-followed by ']'.
-<P>The groups themselves are in one of two format (although further formats may be added
-in future). The first format (list format) is a simple list of newline terminated strings.
-The second, more comlex format consists of tag, value pairs in the format:
+
+<P>The options files are standard RISC OS text files. Any whitespace (space
+or tab) at the beginning or end of a line will be ignored. Any line where the
+first non-whitespace character is '#' is a comment line and will be ignored
+as will any lines consisting of only whitespace.
+
+<P>The file consists of a series of groups delimited by group name
+specifiers. A group name specifier starts with '[' followed by the name,
+which may contain spaces, followed by ']'.
+
+<P>The groups themselves are in one of two format (although further formats
+may be added in future). The first format (list format) is a simple list of
+newline terminated strings.
+
+<p>The second, more complex format consists of tag, value pairs in the
+format:
+
 <P><code>&lt;spaces&gt;tag name&lt;spaces&gt;:&lt;spaces&gt;value&lt;spaces&gt;\n</code>
 <P>Where <code>&lt;spaces&gt;</code> is 0 or more space or tabs.
 <P>An example options file would be:
@@ -441,19 +458,26 @@ This specification has no external dependencies.
 <!-- Meeting this means that we have succeeded -->
 <a name="acceptance"></a>
 <h4 align=left>Acceptance test</h4>
-<p>The options file parser must be capable of coping with very malformed files. We have to
-expect that users (and programmers) will edit the files by hand and often get that wrong.
-At worse the program should fail to read a few options, but even in the worst cases the
-vast majority of the file should be able to be read.
-<p>The layout of option files must be preserved as it will be layed out in such a way as
-to make it easier for the human reader. So, any whitspace must remain in the file after
-it is modified. As should any comments. If no changes are made to the options then the
-file written out should be identical to the file read in.
+<p>The options file parser must be capable of coping with very malformed
+files. We have to expect that users (and programmers) will edit the files by
+hand and often get that wrong. At worse the program should fail to read a few
+options, but even in the worst cases the vast majority of the file should be
+able to be read.
+
+<p>The layout of option files must be preserved as it will be layed out in
+such a way as to make it easier for the human reader. So, any whitspace must
+remain in the file after it is modified. As should any comments. If no
+changes are made to the options then the file written out should be identical
+to the file read in.
+
+<p>Transition to the Options system should be as painless as possible for
+both programmers and users.
 
 <!-- How we will perform tests for compliance to specification -->
 <a name="teststrategy"></a>
 <h4 align=left>Test strategy</h4>
-This section has not been written.
+The Options module should be tested by a number of programmers, in their own
+applications, as well as in some of the OS components.
 
 <!-- Allowable, or physical deviance from this document -->
 <a name="noncompliance"></a>
@@ -475,7 +499,7 @@ Distribution outside the company is not allowed.</strong></td>
 <address>This page is maintained by
 <a href="http://www.riscos.com/">Buildmaster</a>
 (<a href="mailto:buildmaster@riscos.com">buildmaster@riscos.com</a>).
-<br>Last modified on 13 April, 1999.</address>
+<br>Last modified on 15 April, 1999.</address>
 </body>
 </html>
 

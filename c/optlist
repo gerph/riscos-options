@@ -64,6 +64,24 @@ int optg_add(optg *top,opts *opt)
 }
 
 /**************************************************** JRF *********
+ Function:     optg_find
+ Description:  Find the options group named
+ Parameters:   top-> the groups list we need
+               name-> the group name to find
+ Returns:      pointer to the option list
+ ******************************************************************/
+opts *optg_find(optg *grp,char *name)
+{
+  while (grp!=NULL)
+  {
+    if (stricmp(grp->group->name,name)==0)
+      return grp->group;
+    grp=grp->next;
+  }
+  return NULL; /* not found */
+}
+
+/**************************************************** JRF *********
  Function:     optg_show
  Description:  Show all the options in the blocks
  Parameters:   file-> the file to output to
@@ -136,9 +154,15 @@ opts *opt_create(char *name,opttype type)
  ******************************************************************/
 int opt_change(optval *opt,char *data)
 {
-  char *nval=strdup(data);
-  if (nval==NULL)
-    return 1;
+  char *nval;
+  if (data!=NULL)
+  {
+    nval=strdup(data);
+    if (nval==NULL)
+      return 1;
+  }
+  else
+    nval=NULL;
   free(opt->value);
   opt->value=nval;
   return 0;

@@ -1,20 +1,8 @@
-/******************************************************************* RCS
- * $Id$
- * File:     optlist.c
- * Purpose:  Linked list of options
+/*******************************************************************
+ * File:     optlist
+ * Purpose:  Options group list and options list handling
  * Author:   Justin Fletcher
- * Date:     18 Aug 1998
- *
- * $Log$
- * Revision 1.3  98/10/01  12:24:34  gerph
- * Added opt_remove.
- *
- * Revision 1.2  98/09/03  16:01:16  gerph
- * Added readfile and showtabbed routines.
- *
- * Revision 1.1  98/08/18  04:17:53  gerph
- * Initial revision
- *
+ * Date:     15 Apr 1999
  ******************************************************************/
 
 #ifndef __OPTSLIST_H
@@ -22,7 +10,13 @@
 
 #include <stdio.h>
 
-/* a line of the text */
+/* Options Groups are a list of Options Lists.
+   Options Lists contain a number of Option Values.
+   Option Values are identified/value pairs.
+   Identifier may be NULL for a comment.
+   Value may be NULL if the identifier is the only important value (eg lists)
+*/
+
 typedef struct {
   void *next;  /* pointer to next item */
   int indent;  /* this lines indentation */

@@ -28,7 +28,7 @@ CC      = cc
 CD      = dir
 CMHG    = cmhg
 CP      = copy
-MV      = rename
+MV      = copy
 LD      = link
 TLD	= tlink
 RM      = remove
@@ -37,6 +37,7 @@ HSC     = hsc
 
 
 CPFLAGS = ~cfr~v
+MVFLAGS = ~cfr~vd
 WFLAGS  = ~c~v
 HSCFLAGS = getsize rplcent smartent to=../doc/ serverdir=doc BuildHSC:specmacros
 
@@ -171,23 +172,50 @@ doc.specification: docsrc.specification
         $(cd) docsrc
         $(hsc) ${HSCFLAGS} specification
         $(cd) ^
-        $(mv) $@/html $@
+        $(mv) $@/html $@ ${mvflags}
 
 #---------------------------------------------------------------------------
 # Dynamic dependencies:
 o.textproc:	c.textproc
-o.strdup:	c.strdup
-o.strdup:	h.jstring
 o.stricmp:	c.stricmp
 o.stricmp:	h.jstring
-o.main:	c.main
-o.main:	h.optlist
-o.main:	h.choices
+o.strdup:	c.strdup
+o.strdup:	h.jstring
 o.optlist:	c.optlist
 o.optlist:	h.choices
 o.optlist:	h.jstring
 o.optlist:	h.optlist
 o.optlist:	h.textproc
+o.optlist:	c.optlist
+o.optlist:	h.choices
+o.optlist:	h.jstring
+o.optlist:	h.optlist
+o.optlist:	h.textproc
+o.optlist:	c.optlist
+o.optlist:	h.choices
+o.optlist:	h.jstring
+o.optlist:	h.optlist
+o.optlist:	h.textproc
+o.optlist:	c.optlist
+o.optlist:	h.choices
+o.optlist:	h.jstring
+o.optlist:	h.optlist
+o.optlist:	h.textproc
+o.optlist:	c.optlist
+o.optlist:	h.choices
+o.optlist:	h.jstring
+o.optlist:	h.optlist
+o.optlist:	h.textproc
+o.optlist:	c.optlist
+o.optlist:	h.choices
+o.optlist:	h.jstring
+o.optlist:	h.optlist
+o.optlist:	h.textproc
+o.main:	c.main
+o.main:	h.optlist
+o.main:	h.choices
+o.main:	OSLib:Core.h.os
+o.main:	OSLib:Core.h.types
 o.choices:	c.choices
 o.choices:	C:h.swis
 o.choices:	C:h.kernel

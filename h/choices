@@ -1,16 +1,8 @@
-/******************************************************************* RCS
- * $Id$
- *
- * $Author$
- * $Date$
- *
- * $Log$
- * Revision 1.2  98/09/03  16:05:19  gerph
- * Added finalisation and filename reading routines
- *
- * Revision 1.1  98/09/03  01:11:53  gerph
- * Initial revision
- *
+/*******************************************************************
+ * File:     Choices.h
+ * Purpose:  Manipulation of Choices files
+ * Author:   Justin Fletcher
+ * Date:     15 Apr 1999
  ******************************************************************/
 
 #ifndef CHOICES_H
@@ -19,11 +11,14 @@
 /*********************************************** <c> Gerph *********
  Function:     Config_GetFilename
  Description:  Read the name of a config file
- Parameters:   name-> the name to read
+ Parameters:   buffer-> buffer to write into (os_FILE_NAME_LIMIT long)
+               name-> the name to read
                app-> the application name
+               dir-> default directory to use
                write = 1 if we want write access to the file
- Returns:      pointer to static filename
+ Returns:      pointer to filename
  ******************************************************************/
-char *Config_GetFilename(char *name,char *app,int write);
+char *Config_GetFilename(char *buffer,char *name,char *app,char *dir,
+                         int write);
 
 #endif
