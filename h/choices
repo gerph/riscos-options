@@ -1,0 +1,29 @@
+/******************************************************************* RCS
+ * $Id$
+ *
+ * $Author$
+ * $Date$
+ *
+ * $Log$
+ * Revision 1.2  98/09/03  16:05:19  gerph
+ * Added finalisation and filename reading routines
+ *
+ * Revision 1.1  98/09/03  01:11:53  gerph
+ * Initial revision
+ *
+ ******************************************************************/
+
+#ifndef CHOICES_H
+#define CHOICES_H
+
+/*********************************************** <c> Gerph *********
+ Function:     Config_GetFilename
+ Description:  Read the name of a config file
+ Parameters:   name-> the name to read
+               app-> the application name
+               write = 1 if we want write access to the file
+ Returns:      pointer to static filename
+ ******************************************************************/
+char *Config_GetFilename(char *name,char *app,int write);
+
+#endif
