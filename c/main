@@ -7,12 +7,18 @@
 
 #include <stdio.h>
 #include "optlist.h"
+#include "choices.h"
 
 int main(void)
 {
+#if 0
   optg *opts=optg_readfile("options");
   if (opts==NULL)
     printf("[No file read]\n");
   else
     optg_show(stdout,opts,"\n");
+#endif
+
+  /* Test 'create file' */
+  ensuredir("alt.binaries.pictures.porn.helen.rayner");
 }

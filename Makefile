@@ -44,7 +44,7 @@ HSCFLAGS = getsize rplcent smartent to=../doc/ serverdir=doc BuildHSC:specmacros
 CFLAGS   = -throwback -c -depend !Depend ${INCLUDES} -zM -g ${DFLAGS}
 DFLAGS   = -D${SYSTEM}
 ROMFLAGS = -DROM
-INCLUDES = -IC:,OSLib:
+INCLUDES = -IOSLib:Core.,C:
 
 #
 # Libraries
@@ -61,7 +61,8 @@ OBJS =\
  o.textproc \
  o.strdup \
  o.main \
- o.stricmp
+ o.stricmp \
+ o.choices
 # o.Modhdr_NoD\
 # o.auxiliary\
 # o.create\
@@ -79,7 +80,8 @@ RAM_OBJS =\
  o.textproc \
  o.strdup \
  o.main \
- o.stricmp
+ o.stricmp \
+ o.choices
 # o.Modhdr_NoD\
 # o.auxiliary\
 # o.create\
@@ -173,34 +175,23 @@ doc.specification: docsrc.specification
 
 #---------------------------------------------------------------------------
 # Dynamic dependencies:
+o.textproc:	c.textproc
 o.strdup:	c.strdup
 o.strdup:	h.jstring
 o.stricmp:	c.stricmp
 o.stricmp:	h.jstring
 o.main:	c.main
 o.main:	h.optlist
-o.textproc:	c.textproc
+o.main:	h.choices
 o.optlist:	c.optlist
+o.optlist:	h.choices
 o.optlist:	h.jstring
 o.optlist:	h.optlist
 o.optlist:	h.textproc
-o.optlist:	c.optlist
-o.optlist:	h.jstring
-o.optlist:	h.optlist
-o.optlist:	h.textproc
-o.optlist:	c.optlist
-o.optlist:	h.jstring
-o.optlist:	h.optlist
-o.optlist:	h.textproc
-o.optlist:	c.optlist
-o.optlist:	h.jstring
-o.optlist:	h.optlist
-o.optlist:	h.textproc
-o.optlist:	c.optlist
-o.optlist:	h.jstring
-o.optlist:	h.optlist
-o.optlist:	h.textproc
-o.optlist:	c.optlist
-o.optlist:	h.jstring
-o.optlist:	h.optlist
-o.optlist:	h.textproc
+o.choices:	c.choices
+o.choices:	C:h.swis
+o.choices:	C:h.kernel
+o.choices:	h.optlist
+o.choices:	h.jstring
+o.choices:	OSLib:Core.h.os
+o.choices:	OSLib:Core.h.types

@@ -5,6 +5,9 @@
  * $Date$
  *
  * $Log$
+ * Revision 1.1  1999/04/14 14:47:54  justin
+ * Added preliminary work on the Options module.
+ *
  * Revision 1.2  98/09/03  15:58:04  gerph
  * Added finalisation routines to actually store the options.
  *
@@ -17,7 +20,7 @@
 #include <string.h>
 #include "swis.h"
 #include "optlist.h"
-#include "stricmp.h"
+#include "jstring.h"
 
 /* From OSLib */
 #include "os.h"
@@ -38,7 +41,7 @@ int cdir(char *dir)
 
 void settype(char *file,int type)
 {
-  return _swix(OS_File,_INR(0,2),18,file,type);
+  _swix(OS_File,_INR(0,2),18,file,type);
 }
 
 /**************************************************** JRF *********
@@ -71,18 +74,58 @@ int copyfile(char *old,char *new)
   return _swix(OS_FSControl,_INR(0,3),26,old,new,1<<1)!=NULL;
 }
 
+/**************************************************** JRF *********
+ Function:     ensuredir
+ Description:  Ensures that the directory of a path exists
+ Parameters:   dir-> directory to ensure
+ Returns:      none
+ ******************************************************************/
+void ensuredir(char const *dir)
+{
+  char newdir[os_FILE_NAME_LIMIT];
+  char *dot;
+  char *nextdot;
+  int len;
+
+  if (strrchr(dir,'.')==NULL)
+    return; /* No dot's so we abort right now */
+
+  strcpy(newdir,dir);
+  do
+  {
+    dot=strrchr(newdir,'.');
+    if (dot!=NULL)
+      *dot='\0';
+  } while (dot!=NULL && fexists(newdir)==0);
+
+  /* Right, so we know that the thing pointed to by newdir exists */
+  len=strlen(newdir);
+  do
+  {
+    printf("Creating %s\n",newdir);
+    cdir(newdir);
+    newdir[len]='.'; /* Append the seperator */
+    nextdot=strchr(&dir[len+1],'.');
+    if (nextdot!=NULL)
+    {
+      memcpy(&newdir[len],&dir[len],nextdot-&dir[len]);
+      len+=nextdot-&dir[len];
+    }
+  } while (nextdot);
+}
+
 /*********************************************** <c> Gerph *********
  Function:     Config_GetFilename
  Description:  Read the name of a config file
- Parameters:   name-> the name to read
+ Parameters:   buffer-> buffer to write into (os_FILE_NAME_LIMIT long)
+               name-> the name to read
                app-> the application name
                dir-> default directory to use
                write = 1 if we want write access to the file
  Returns:      pointer to static filename
  ******************************************************************/
-char *Config_GetFilename(char *name,char *app,char *dir,int write)
+char *Config_GetFilename(char *buffer,char *name,char *app,char *dir,int write)
 {
-  static char buffer[os_FILE_NAME_LIMIT];
   if (getenv("Choices$Write")==NULL)
   {
     /* we cannot use Choices (probably non-RPC) */
@@ -93,6 +136,7 @@ char *Config_GetFilename(char *name,char *app,char *dir,int write)
     if (write)
     {
       sprintf(buffer,"<Choices$Write>.%s.%s",app,name);
+      ensuredir(buffer);
     }
     else
     {
@@ -101,10 +145,10 @@ char *Config_GetFilename(char *name,char *app,char *dir,int write)
       {
         /* The file doesn't exist. We must copy the non-Choices: version
            over it */
-        char buffer2[256];
+        char buffer2[os_FILE_NAME_LIMIT];
         sprintf(buffer,"%s.%s",dir,name); /* original */
-        sprintf(buffer2,"<Choices$Write>.%s",app); cdir(buffer2);
         sprintf(buffer2,"<Choices$Write>.%s.%s",app,name); /* new */
+        ensuredir(buffer2);
         copyfile(buffer,buffer2);
       }
     }
@@ -116,214 +160,4 @@ char *Config_GetFilename(char *name,char *app,char *dir,int write)
   printf("                  = \"%s\"\n",buffer);
 #endif
   return buffer;
-}
-
-/*********************************************** <c> Gerph *********
- Function:     InitConfig
- Description:  Initialise the configuration code
- Parameters:   none
- Returns:      none
- ******************************************************************/
-void InitConfig(void)
-{
-  GameOpts=opt_readfile(Config_GetFilename("Config","Doom",0));
-  FEOpts=opt_readfile(Config_GetFilename("FrontEnd","Doom",0));
-  if (GameOpts==NULL)
-    GameOpts=opt_create();
-  if (FEOpts==NULL)
-    FEOpts=opt_create();
-  if ( (GameOpts==NULL) || (FEOpts==NULL) )
-    exit(1); /* Die violently */
-}
-
-/*********************************************** <c> Gerph *********
- Function:     FinalConfig
- Description:  Finalise the configuration code - write out the values
- Parameters:   none
- Returns:      none
- ******************************************************************/
-void FinalConfig(void)
-{
-  FILE *game=fopen(Config_GetFilename("Config","Doom",1),"w");
-  FILE *fe=fopen(Config_GetFilename("FrontEnd","Doom",1),"w");
-  if (game!=NULL)
-  {
-    opt_showtabbed(game,GameOpts,"\n");
-    fclose(game);
-  }
-  if (fe!=NULL)
-  {
-    opt_show(fe,FEOpts,"\n");
-    fclose(fe);
-  }
-}
-
-/*********************************************** <c> Gerph *********
- Function:     Config_GetDoomStr
- Description:  Read a configuration option from Doom
- Parameters:   id-> the id to read
- Returns:      pointer to entry, or NULL if not found
- ******************************************************************/
-char *Config_GetDoomStr(char *id)
-{
-  optval *ent=opt_findiopt(GameOpts,id);
-  if (ent==NULL)
-    return NULL;
-  return opt_value(ent); /* Return the value */
-}
-
-/*********************************************** <c> Gerph *********
- Function:     Config_GetDoomNum
- Description:  Read a configuration option from Doom
- Parameters:   id-> the id to read
- Returns:      number, or -1 if not found
- ******************************************************************/
-int Config_GetDoomNum(char *id)
-{
-  optval *ent=opt_findiopt(GameOpts,id);
-#ifdef DEBUG
-    { void __swi(0x104) vdu4(void); vdu4(); }
-    printf("Config_GetDoomNum: '%s' = %p\n",id,ent);
-#endif
-  if (ent==NULL)
-    return -1;
-  return atoi(opt_value(ent)); /* Return the value */
-}
-
-/*********************************************** <c> Gerph *********
- Function:     Config_SetDoomStr
- Description:  Write a configuration option to Doom
- Parameters:   id-> the id to read
-               val-> the value to write
- Returns:      0 if successful, 1 otherwise
- ******************************************************************/
-int Config_SetDoomStr(char *id,char *val)
-{
-  optval *ent=opt_findiopt(GameOpts,id);
-  char buf[512];
-  sprintf(buf,"\"%s\"",val);
-  if (ent==NULL)
-    return opt_add(GameOpts,id,buf);
-  return opt_change(ent,buf);
-}
-
-/*********************************************** <c> Gerph *********
- Function:     Config_SetDoomNum
- Description:  Write a configuration option to Doom
- Parameters:   id-> the id to read
-               num = the value to write
- Returns:      0 if successful, 1 otherwise
- ******************************************************************/
-int Config_SetDoomNum(char *id,int num)
-{
-  optval *ent=opt_findiopt(GameOpts,id);
-  char buf[16];
-  sprintf(buf,"%i",num);
-  if (ent==NULL)
-    return opt_add(GameOpts,id,buf);
-  return opt_change(ent,buf);
-}
-
-/*********************************************** <c> Gerph *********
- Function:     Config_GetFENum
- Description:  Read a configuration option from FrontEnd
- Parameters:   id-> the id to read
- Returns:      number, or -1 if not found
- ******************************************************************/
-int Config_GetFENum(char *id)
-{
-  optval *ent=opt_findiopt(FEOpts,id);
-#ifdef DEBUG
-  { void __swi(0x104) vdu4(void); vdu4(); }
-  printf("Config_GetFENum: '%s' = %p\n",id,ent);
-#endif
-  if (ent==NULL)
-    return -1;
-  return atoi(opt_value(ent)); /* Return the value */
-}
-
-/*********************************************** <c> Gerph *********
- Function:     Config_GetFEStr
- Description:  Read a configuration string from FrontEnd
- Parameters:   id-> the id to read
- Returns:      pointer to string, or NULL if not found
- ******************************************************************/
-char *Config_GetFEStr(char *id)
-{
-  optval *ent=opt_findiopt(FEOpts,id);
-#ifdef DEBUG
-  { void __swi(0x104) vdu4(void); vdu4(); }
-  printf("Config_GetFEStr: '%s' = %p\n",id,ent);
-#endif
-  if (ent==NULL)
-    return NULL;
-  return opt_value(ent); /* Return the value */
-}
-
-/*********************************************** <c> Gerph *********
- Function:     Config_GetFEFlag
- Description:  Read a configuration flag from FrontEnd
- Parameters:   id-> the id to read
- Returns:      number, or -1 if not found
- ******************************************************************/
-int Config_GetFEFlag(char *id)
-{
-  optval *ent=opt_findiopt(FEOpts,id);
-  char *val;
-#ifdef DEBUG
-  { void __swi(0x104) vdu4(void); vdu4(); }
-  printf("Config_GetFEFlag: '%s' = %p\n",id,ent);
-#endif
-  if (ent==NULL)
-    return 0;
-  val=opt_value(ent);
-  if ( (stricmp(val,"1")==0) ||
-       (stricmp(val,"on")==0) ||
-       (stricmp(val,"true")==0) ||
-       (stricmp(val,"set")==0) )
-    return 1;
-  return 0;
-}
-
-/*********************************************** <c> Gerph *********
- Function:     Config_SetFEStr
- Description:  Write a configuration option to FrontEnd
- Parameters:   id-> the id to read
-               val-> the value to write
- Returns:      0 if successful, 1 otherwise
- ******************************************************************/
-int Config_SetFEStr(char *id,char *val)
-{
-  optval *ent=opt_findiopt(FEOpts,id);
-  if (ent==NULL)
-    return opt_add(FEOpts,id,val);
-  return opt_change(ent,val);
-}
-
-/*********************************************** <c> Gerph *********
- Function:     Config_SetFEFlag
- Description:  Write a configuration flag to FrontEnd
- Parameters:   id-> the id to read
-               flag = flag to write
- Returns:      0 if successful, 1 otherwise
- ******************************************************************/
-int Config_SetFEFlag(char *id,int flag)
-{
-  if (flag)
-    return Config_SetFEStr(id,"On");
-  return Config_SetFEStr(id,"Off");
-}
-
-/*********************************************** <c> Gerph *********
- Function:     Config_SetFENum
- Description:  Write a configuration option to FrontEnd
- Parameters:   id-> the id to read
-               num = number to write
- Returns:      0 if successful, 1 otherwise
- ******************************************************************/
-int Config_SetFENum(char *id,int num)
-{
-  char buf[16];
-  sprintf(buf,"%i",num);
-  return Config_SetFEStr(id,buf);
 }

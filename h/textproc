@@ -9,10 +9,10 @@
 #define TEXTPROC_H
 
 /* skip preceeding whitespace, leave x pointing to the last character */
-#define SKIPPREWS(x)  do { x--; } while ((x[0]=='\t') || (x[0]==' '));
+#define SKIPPREWS(x)  do { x--; } while ((x[0]==' ') || (x[0]=='\t'))
 /* skip succeeding whitespace, leave x pointing to the first character */
-#define SKIPPOSTWS(x) do { x++; } while ((x[0]=='\t') || (x[0]==' '));
-
+/* #define SKIPPOSTWS(x) x+=strspn(x," \t") */
+#define SKIPPOSTWS(x) do { x++; } while ((x[0]==' ') || (x[0]=='\t'))
 
 /*********************************************** <c> Gerph *********
  Function:     loadfile

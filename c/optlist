@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "choices.h"
 #include "jstring.h"
 #include "optlist.h"
 #include "textproc.h"
@@ -77,7 +78,12 @@ void optg_show(FILE *file,optg *grp,char *term)
     opt_show(file,grp->group,term);
     grp=grp->next;
     if (grp!=NULL)
-      fprintf(file,"[%s]\n",grp->group->name);
+    {
+      if (grp->group->type!=opt_options)
+        fprintf(file,"[%s]\n",grp->group->name);
+      else
+        fprintf(file,"[%s] Type %i\n",grp->group->name,grp->group->type);
+    }
   }
 }
 
@@ -301,12 +307,20 @@ optg *optg_readfile(char *file)
     }
     if (*line=='[')
     { /* It's a new group - not finished */
+      opttype grptype=opt_options;
       char *endbracket=strchr(line,']');
       if (endbracket==NULL)
         break; /* broken group -
                   maybe we should abort till the next group block ? */
-      *endbracket='\0';
-      olist=opt_create(&line[1],opt_options);
+      *endbracket++='\0';
+
+      /* The bracket can be followed by the group type */
+      SKIPPOSTWS(endbracket);
+
+      if ((endbracket=strileftcmp(endbracket,"type"))!=NULL)
+        grptype=(opttype)strtoul(endbracket,&endbracket,10);
+
+      olist=opt_create(&line[1],grptype);
       if (olist==NULL)
         break; /* Out of memory; abort */
       if (optg_add(ogrp,olist))
@@ -326,43 +340,45 @@ optg *optg_readfile(char *file)
         continue;
       }
       id=line;
-    }
-    else
-      sep=line;
 
-    *sep='\0'; /* Terminate at : */
-    value=sep+1;
+      *sep='\0'; /* Terminate at : */
+      value=sep+1;
 
-    while ((sep>line) && ((sep[-1]==' ') || (sep[-1]=='\t')))
-      sep--, sep[0]='\0'; /* Remove trailing spaces */
+      while ((sep>line) && ((sep[-1]==' ') || (sep[-1]=='\t')))
+        sep--, sep[0]='\0'; /* Remove trailing spaces */
 
-    while (*value==' ' || *value=='\t')
-      value++; /* Skip leading spaces on value */
+      SKIPPOSTWS(value); /* Skip leading spaces on value */
 
-    /* Now strip any trailing spaces from the value */
-    {
-      char *end=&value[strlen(value)-1];
-      while (end>value && (*end==' ' || *end=='\t'))
-        end--;
-      end[1]='\0';
-
-      /* Check whether we're quote terminated */
-      if (value[0]=='"')
+      /* Now strip any trailing spaces from the value */
       {
-        if (end[0]=='"' && end!=value)
-        { /* It's a valid quoted string, skip spaces */
-          end[0]='\0'; value++;
-        }
-        else
-        { /* It's not valid so we assume it's a blank line */
-          opt_add(olist,NULL,indent,NULL);
-          continue;
+        char *end=&value[strlen(value)-1];
+        while (end>value && (*end==' ' || *end=='\t'))
+          end--;
+        end[1]='\0';
+
+        /* Check whether we're quote terminated */
+        if (value[0]=='"')
+        {
+          if (end[0]=='"' && end!=value)
+          { /* It's a valid quoted string, skip spaces */
+            end[0]='\0'; value++;
+          }
+          else
+          { /* It's not valid so we assume it's a blank line */
+            opt_add(olist,NULL,indent,NULL);
+            continue;
+          }
         }
       }
     }
+    else
+      value=line;
 
     if (olist->type==opt_list)
       id=value, value=NULL; /* */
+
+    if (id[0]=='\0')
+      id=NULL,value=NULL; /* If the ID is null then it must be invalid */
 
     if (opt_add(olist,id,indent,value))
     { /* It failed to add the entry - we've got to abort */
@@ -409,8 +425,9 @@ void opt_show(FILE *file,opts *opt,char *term)
     {
       if (value)
       {
-        if ((value[0]==' ') || (strchr(value,'"')!=NULL) ||
-            (value[strlen(value)-1]==' '))
+        int len;
+        if ((value[0]==' ') || (value[0]=='\t') || (strchr(value,'"')!=NULL) ||
+            (value[len=(strlen(value)-1)]==' ') || value[len]=='\t')
           fprintf(file,"%s: \"%s\"%s",id,value,term);
         else
           fprintf(file,"%s: %s%s",id,value,term);

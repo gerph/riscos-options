@@ -18,3 +18,13 @@ Third group entry:    she said "hello there"
 Another quoted string:"nothing here really...    "
                              More    :             "A part quoted string
 Yet more:             Another part quoted string"
+
+[List group] Type 1
+This is a list
+Of items
+Which are quite long
+   a space prepadded string
+and a space post padded string   
+and one with "'s in
+"one with a quote at the start
+and one with a quote at the end"
