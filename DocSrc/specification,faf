@@ -153,7 +153,7 @@ will be in one of two formats.
 <P>For an options group the format it:
 <offsettable>
  <offset number=0 length=4>Pointer to tag 0</offset>
- <offset number=4 length=4>Pointer to value 0</offset>
+ <offset number=4 length=4>Pointer to value 0, or NULL if no value set (eg list groups)</offset>
  <offsetnote>Repeated until...</offsetnote>
  <offset number="x" length=4>0</offset>
  <offset number="x+4" length=4>0</offset>

@@ -7,8 +7,10 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "optlist.h"
 #include "choices.h"
+#include "options.h"
 
 /* From OSLib */
 #include "os.h"
@@ -29,6 +31,7 @@ int main(void)
   ensuredir("testing");
 #endif
 
+#if 0
   /* Test 'Get name of options file' */
   {
     char read[os_FILE_NAME_LIMIT];
@@ -42,4 +45,184 @@ int main(void)
     TEST("Forecast","test.Forecast");
     TEST("WWW.Browse","test.www.browse");
   }
+#endif
+
+#if 0
+  printf(">test the group \"options reading options\" code\n");
+  {
+    int size;
+    char *buffer;
+    optg *grp=optg_readfile("Options");
+    if (grp==NULL)
+    {
+      printf("Failed to open options file\n");
+    }
+    else
+    {
+      size=readgroup(grp,"group2",0,NULL,-1);
+      printf("Find group 'group2' gave %i\n",size);
+      if (size!=0)
+      {
+        int read;
+        char **data;
+        buffer=malloc(-size);
+        read=readgroup(grp,"group2",0,buffer,-size);
+        if (read!=-size)
+          printf("Size read is not the size requested\n");
+        printf("Read group data; got = %i\n",read);
+        data=(char**)buffer;
+        while (*data!=NULL)
+        {
+          char *id,*value;
+          id=*data++;
+          value=*data++;
+          /* printf("%p: %p\n",id,value); */
+          printf("%s: %s\n",id,value ? value : "[None]");
+        }
+      }
+      optg_destroy(grp);
+    }
+  }
+#endif
+
+#if 0
+  printf(">test the group \"options reading list\" code\n");
+  {
+    int size;
+    char *buffer;
+    optg *grp=optg_readfile("Options");
+    if (grp==NULL)
+    {
+      printf("Failed to open options file\n");
+    }
+    else
+    {
+      size=readgroup(grp,"list group",0,NULL,-1);
+      printf("Find group 'list group' gave %i\n",size);
+      if (size!=0)
+      {
+        int read;
+        char **data;
+        buffer=malloc(-size);
+        read=readgroup(grp,"list group",0,buffer,-size);
+        if (read!=-size)
+          printf("Size read is not the size requested\n");
+        printf("Read group data; got = %i\n",read);
+        data=(char**)buffer;
+        while (*data!=NULL)
+        {
+          char *id,*value;
+          id=*data++;
+          value=*data++;
+          /* printf("%p: %p\n",id,value); */
+          printf("%s: %s\n",id,value ? value : "[None]");
+        }
+      }
+      optg_destroy(grp);
+    }
+  }
+#endif
+
+#if 0
+  printf(">test the group \"list reading options\" code\n");
+  {
+    int size;
+    char *buffer;
+    optg *grp=optg_readfile("Options");
+    if (grp==NULL)
+    {
+      printf("Failed to open options file\n");
+    }
+    else
+    {
+      size=readgroup(grp,"group2",1,NULL,-1);
+      printf("Find group 'group2' gave %i\n",size);
+      if (size!=0)
+      {
+        int read;
+        char *ptr;
+        buffer=malloc(-size);
+        read=readgroup(grp,"group2",1,buffer,-size);
+        if (read!=-size)
+          printf("Size read is not the size requested\n");
+        printf("Read group data; got = %i\n",read);
+        ptr=buffer;
+        while (*ptr!='\0')
+        {
+          printf("%s\n",ptr);
+          ptr+=strlen(ptr)+1;
+        }
+      }
+      optg_destroy(grp);
+    }
+  }
+#endif
+
+#if 0
+  printf(">test the group \"list reading list\" code\n");
+  {
+    int size;
+    char *buffer;
+    optg *grp=optg_readfile("Options");
+    if (grp==NULL)
+    {
+      printf("Failed to open options file\n");
+    }
+    else
+    {
+      size=readgroup(grp,"list group",1,NULL,-1);
+      printf("Find group 'list group' gave %i\n",size);
+      if (size!=0)
+      {
+        int read;
+        char *ptr;
+        buffer=malloc(-size);
+        read=readgroup(grp,"list group",1,buffer,-size);
+        if (read!=-size)
+          printf("Size read is not the size requested\n");
+        printf("Read group data; got = %i\n",read);
+        ptr=buffer;
+        while (*ptr!='\0')
+        {
+          printf("%s\n",ptr);
+          ptr+=strlen(ptr)+1;
+        }
+      }
+      optg_destroy(grp);
+    }
+  }
+#endif
+
+#if 1
+  /* Test that write group works */
+  {
+    /* optg *grp=optg_create(); */
+    optg *grp=optg_readfile("Options");
+    if (grp==NULL)
+    {
+      printf("Failed to create options block\n");
+    }
+    else
+    {
+      _kernel_oserror *err;
+      char *data[] =
+      {
+        NULL, "This is a comment",
+        "Justin",  "Helen",
+        "Matthew", "Claire",
+        "Simon", "Nothing",
+        NULL, NULL
+      };
+      printf("Created group ok\n");
+      err=writegroup(grp,"$",0,data);
+      if (err)
+        printf("Error writing: %s\n",err->errmess);
+      else
+      {
+        printf("Wrote group\n");
+        optg_show(stdout,grp,"\n");
+      }
+    }
+  }
+#endif
 }

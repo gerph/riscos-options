@@ -66,6 +66,15 @@ optg *optg_create(void);
 int optg_add(optg *top,opts *opt);
 
 /**************************************************** JRF *********
+ Function:     optg_find
+ Description:  Find the options group named
+ Parameters:   top-> the groups list we need
+               name-> the group name to find
+ Returns:      pointer to the option list
+ ******************************************************************/
+opts *optg_find(optg *grp,char *name);
+
+/**************************************************** JRF *********
  Function:     optg_destroy
  Description:  Destroy the entire options group set
  Parameters:   grp-> the groups to destroy

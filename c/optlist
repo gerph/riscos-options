@@ -163,7 +163,12 @@ int opt_change(optval *opt,char *data)
   }
   else
     nval=NULL;
-  free(opt->value);
+
+#ifdef DEBUG
+  printf("Freeing data at %p from %p\n",opt->value,opt);
+#endif
+  if (opt->value!=NULL)
+    free(opt->value);
   opt->value=nval;
   return 0;
 }
