@@ -1,0 +1,20 @@
+Opt1:Option1
+Opt2:Option2
+Opt3:Option3
+
+# This is a comment
+# this is another
+
+[Group2]
+More options : hello
+  two spaces    : and more at the end
+value padded:      spaces here    
+this is rubbish
+this is more rubbish
+: probably rubbish
+
+[Group3]
+Third group entry:    she said "hello there"
+Another quoted string:"nothing here really...    "
+                             More    :             "A part quoted string
+Yet more:             Another part quoted string"

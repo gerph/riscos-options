@@ -1,0 +1,171 @@
+/*******************************************************************
+ * File:     textproc.c
+ * Purpose:  Text processing things
+ * Author:   Justin Fletcher
+ * Date:     06 Aug 1998
+ ******************************************************************/
+
+#include <ctype.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+/* Define this to use realloc :
+   realloc() seems to be returning -1 sometimes on RO3.1 for no good reason
+*/
+/* #define USE_REALLOC */
+
+/* Define this to debug this file */
+/* #define DEBUG */
+
+/* skip preceeding whitespace, leave x pointing to the last character */
+#define SKIPPREWS(x)  do { x--; } while ((x[0]=='\t') || (x[0]==' '));
+/* skip succeeding whitespace, leave x pointing to the first character */
+#define SKIPPOSTWS(x) do { x++; } while ((x[0]=='\t') || (x[0]==' '));
+
+/*********************************************** <c> Gerph *********
+ Function:     loadfile
+ Description:  Load a file into memory
+ Parameters:   file-> filename
+               len-> where to store the length
+ Returns:      pointer to a the file, malloc'd
+ Note:         The file will have two LF's stored at its end
+ ******************************************************************/
+void *loadfile(char *file,int *len)
+{
+  char *block;
+  FILE *fileh;
+
+  fileh=fopen(file,"rb");
+  if (fileh==NULL)
+  {
+#ifdef DEBUG
+    printf("Failed to load %s\n",file);
+#endif
+    return NULL;
+  }
+  fseek(fileh,0,SEEK_END); /* move to the end */
+  *len=(int)ftell(fileh);  /* read the length */
+
+  block=malloc(*len+2);
+  if (block==NULL)
+  {
+#ifdef DEBUG
+    printf("Failed to allocate memory to load %s\n",file);
+#endif
+    fclose(fileh);
+    free(block);  /* if we failed to claim */
+    return NULL;
+  }
+
+  fseek(fileh,0,SEEK_SET); /* move to the start */
+  fread(block,1,*len,fileh);  /* read the data into our block */
+  fclose(fileh);   /* gone and forgotten */
+  block[*len+0]='\n';
+  block[*len+1]='\n';
+  return block;
+}
+
+/*********************************************** <c> Gerph *********
+ Function:     findnextws
+ Description:  finds the next whitespace character
+ Parameters:   p-> string
+ Returns:      pointer to next ws, or 0 if not found
+ ******************************************************************/
+char *findnextws(char *p)
+{
+  int inquotes=0;
+  while ( ( ((p[0]!=' ') && (p[0]!='\t')) || (inquotes) )
+          && (p[0]!='\0'))
+  {
+    if (p[0]=='"')
+      inquotes=!inquotes;
+    p++;
+  }
+  if (p[0]=='\0') p=NULL;
+  return p;
+}
+
+/*********************************************** <c> Gerph *********
+ Function:     readline
+ Description:  Read a line from memory, concatenating the bits with
+               \'s on the end
+ Parameters:   block-> start of data
+               len = length of data
+               theoffset = offset to start at
+ Returns:      pointer to a dynamic string (will only live as long
+               as you don't call readline again), or NULL if failed
+ ******************************************************************/
+char *readline(char *block, int blklen, int *theoffset)
+{
+  int p=*theoffset;
+  static char *res=NULL;
+  static int reslen=-1;
+
+  int outp=0; /* the offset of the output */
+
+#ifdef DEBUG
+  printf("readline: res = %p, reslen = %i\n",res,reslen);
+#endif
+
+  if (p==blklen)
+    return NULL;
+
+  do
+  {
+    int len=0;
+    {
+      char *x=&block[p];
+      int end=blklen-p;
+      while (len<end && x[len]!='\n') len++;
+      if (len==end)
+        return NULL;
+    }
+
+#ifdef DEBUG
+    printf("String length = %i (reslen=%i)\n",len,reslen);
+#endif
+
+    if (len+outp+1 > reslen)
+    {
+      char *newres;
+      if (res==NULL)
+        newres=malloc(len+outp+1);
+      else
+#ifdef USE_REALLOC
+        newres=realloc(res,len+outp+1);
+#else
+      {
+        newres=malloc(len+outp+1);
+        if (newres)
+        {
+          memcpy(newres,res,reslen);
+          free(res);
+        }
+      }
+#endif
+
+#ifdef DEBUG
+      printf("NewRes returned %p\n",newres);
+#endif
+
+      if (newres==NULL)
+        return NULL; /* Ah. Shit. We failed */
+      res=newres;
+      reslen=len+outp; /* intentionally missed off the +1 for safety */
+    }
+
+    strncpy(&res[outp],&block[p],len);
+    p+=len+1; /* increment source */
+    outp+=len;
+    if (res[outp-1]!='\\')
+    {
+      *theoffset=p;
+      res[outp]=0; /* terminate the string */
+      return res;
+    }
+    outp--;
+
+  } while (1);
+}
+

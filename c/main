@@ -1,0 +1,18 @@
+/*******************************************************************
+ * File:     main
+ * Purpose:  Main test code for Options module
+ * Author:   Justin Fletcher
+ * Date:     13 Apr 1999
+ ******************************************************************/
+
+#include <stdio.h>
+#include "optlist.h"
+
+int main(void)
+{
+  optg *opts=optg_readfile("options");
+  if (opts==NULL)
+    printf("[No file read]\n");
+  else
+    optg_show(stdout,opts,"\n");
+}

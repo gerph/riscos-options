@@ -1,0 +1,108 @@
+/*******************************************************************
+ * File:     jstring.h
+ * Purpose:  String utilities
+ * Author:   Justin Fletcher
+ * Date:     30 Jul 1997
+ ******************************************************************/
+
+#ifndef __JSTRING_H
+#define __JSTRING_H
+#include <stdlib.h> /* for size_t */
+
+/*********************************************** <c> Gerph *********
+ Function:     stricmp
+ Description:  Case insensitive comparison
+ Parameters:   str1 = one string
+               str2 = the other one
+ Returns:      <0 if str1 < str2
+               >0 if str1 > str2
+               =0 if str1 = str2
+ ******************************************************************/
+int stricmp(char *str1,char *str2);
+
+/*********************************************** <c> Gerph *********
+ Function:     strleftcmp
+ Description:  Compare the leftmost characters of the string
+ Parameters:   str-> the string we're comparing to
+               left-> the characters we want them to be
+ Returns:      pointer to the character after the last match, or
+               NULL if they didn't match
+ ******************************************************************/
+char *strleftcmp(char *str,char *left);
+
+/*********************************************** <c> Gerph *********
+ Function:     strirightcmp
+ Description:  Compare the leftmost characters of the string
+ Parameters:   right-> the characters we want them to be
+               str-> the string we're comparing to
+ Returns:      pointer to start of match, or NULL if not matched
+ ******************************************************************/
+char *strirightcmp(char *str,char *right);
+
+/*********************************************** <c> Gerph *********
+ Function:     strnicmp
+ Description:  Case insensitive comparison for a number of chars
+ Parameters:   str1 = one string
+               str2 = the other one
+ Returns:      <0 if str1 < str2
+               >0 if str1 > str2
+               =0 if str1 = str2
+ ******************************************************************/
+int strnicmp(char *str1,char *str2,size_t n);
+
+/*********************************************** <c> Gerph *********
+ Function:     strdup
+ Description:  Copy a string into a new block of memory
+ Parameters:   x-> string to copy
+ Returns:      pointer to new copy of string, or NULL if failed
+ ******************************************************************/
+char *strdup(char *x);
+
+/*********************************************** <c> Gerph *********
+ Function:     strndup
+ Description:  Duplicate a string to a particular length
+ Parameters:   str-> string to copy
+               n = number of CHARACTERS to copy
+ Returns:      pointer to new string
+ ******************************************************************/
+char *strndup(char *str,int n);
+
+/*********************************************** <c> Gerph *********
+ Function:     strdupon
+ Description:  Copy a string on to the end of another string
+ Parameters:   x-> initial string
+               y-> string to add
+ Returns:      pointer to new copy of string, or NULL if failed
+ ******************************************************************/
+char *strdupon(char *x,char *y);
+
+/*********************************************** <c> Gerph *********
+ Function:     strduponto
+ Description:  Copy a string on the end of another string (and discard
+               the original x string)
+ Parameters:   x-> initial string
+               y-> string to add
+ Returns:      pointer to new copy of string, or NULL if failed
+ ******************************************************************/
+char *strduponto(char *x,char *y);
+
+/*********************************************** <c> Gerph *********
+ Function:     stristr
+ Description:  Check if one string contains another insensitively
+ Parameters:   s1-> first string (long one)
+               r2-> second string (short one)
+ Returns:      pointer to start of match
+ ******************************************************************/
+char *stristr(char *s1, char *s2);
+
+/*********************************************** <c> Gerph *********
+ Function:     strileftcmp
+ Description:  Compare the leftmost characters of the string insenitively
+ Parameters:   str-> the string we're comparing to
+               left-> the characters we want them to be
+ Returns:      pointer to the character after the last match, or
+               NULL if they didn't match
+ ******************************************************************/
+char *strileftcmp(char *str,char *left);
+
+#endif

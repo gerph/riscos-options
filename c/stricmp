@@ -1,0 +1,106 @@
+/*******************************************************************
+ * File:     stricmp
+ * Purpose:  Insensitive string compare
+ * Author:   Justin Fletcher
+ * Date:     30 Jul 1997
+ ******************************************************************/
+
+#include <ctype.h>
+#include <string.h>
+#include "jstring.h"
+
+/*********************************************** <c> Gerph *********
+ Function:     stricmp
+ Description:  Case insensitive comparison
+ Parameters:   str1 = one string
+               str2 = the other one
+ Returns:      <0 if str1 < str2
+               >0 if str1 > str2
+               =0 if str1 = str2
+ ******************************************************************/
+int stricmp(char *str1,char *str2)
+{
+  char one,two;
+  int  index;
+  int  len=strlen(str1); /* speeds things up a tad */
+  for(index=0; index<=len; index++)
+  {
+    one=tolower(str1[index]);
+    two=tolower(str2[index]);
+    if (one!=two)
+    {
+      if (one<two)
+        return -1;
+      else
+        return 1;
+    }
+  }
+  return 0;
+}
+
+/*********************************************** <c> Gerph *********
+ Function:     strirightcmp
+ Description:  Compare the leftmost characters of the string
+ Parameters:   right-> the characters we want them to be
+               str-> the string we're comparing to
+ Returns:      pointer to start of match, or NULL if not matched
+ ******************************************************************/
+char *strirightcmp(char *str,char *right)
+{
+  int is=strlen(str)-1;
+  int ir=strlen(right)-1;
+  if (is<ir)
+    return 0; /* str < right, so they can't match */
+#ifdef DEBUG
+  printf("strirightcmp: %s %s\n",str,right);
+#endif
+  while (ir>=0)
+  {
+#ifdef DEBUG
+    printf("strirightcmp: %c %c %i %i\n",tolower(str[is]),tolower(right[ir]),is,ir);
+#endif
+    if (tolower(str[is])!=tolower(right[ir]))
+      return NULL; /* don't match */
+    ir--; is--;
+  }
+  return &str[strlen(str)]-strlen(right);
+}
+
+/*********************************************** <c> Gerph *********
+ Function:     strleftcmp
+ Description:  Compare the leftmost characters of the string
+ Parameters:   str-> the string we're comparing to
+               left-> the characters we want them to be
+ Returns:      pointer to the character after the last match, or
+               NULL if they didn't match
+ ******************************************************************/
+char *strleftcmp(char *str,char *left)
+{
+  int ind=0;
+  while ((left[ind]==str[ind]) && (left[ind]!='\0'))
+  {
+    ind++;
+  }
+  if (left[ind]=='\0')
+    return &str[ind];
+  return NULL;
+}
+
+/*********************************************** <c> Gerph *********
+ Function:     strileftcmp
+ Description:  Compare the leftmost characters of the string insenitively
+ Parameters:   str-> the string we're comparing to
+               left-> the characters we want them to be
+ Returns:      pointer to the character after the last match, or
+               NULL if they didn't match
+ ******************************************************************/
+char *strileftcmp(char *str,char *left)
+{
+  while ((tolower(*left)==tolower(*str)) && (*left!='\0'))
+  {
+    left++; str++;
+  }
+  if (*left=='\0')
+    return str;
+  return NULL;
+}

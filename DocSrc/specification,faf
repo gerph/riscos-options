@@ -1,0 +1,337 @@
+<funcspec title="Options module">
+<thisissue number=1 revision="Draft">
+<thisdate changed="14 Jan 1999">
+<thisauthors name="Matthew Bullock">
+<thisauthors name="Justin Fletcher">
+<thisdistribution type="Company">   
+<status>
+
+<!-- Quick jumping to the contents of this document -->
+<subheading tag="contents">Contents</subheading>
+<contents>
+ <content name="Document Status" tag="status">
+ <content name="History" tag="history">
+ <content name="Overview" tag="overview">
+ <content name="User interface" tag="userinterface">
+ <content name="Programmer interface" tag="proginterface">
+ <content name="Data formats" tag="formats">
+ <content name="External dependencies" tag="external">
+ <content name="Testing scheme" tag="testing">
+  <contents sub>
+   <content name="Acceptance test" tag="acceptance">
+   <content name="Test strategy" tag="teststrategy">
+  </contents>
+ <content name="Non-compliance" tag="noncompliance">
+ <content name="Outstanding issues" tag="outstanding">
+</contents>
+
+<!-- The history of this document -->
+<history>
+ <!-- Add your revision changes here -->
+ <revision number="Draft" date="14 Jan 1999" author="JF">
+  Private draft - from email conversation with MB
+ </revision>
+ <revision number=2 date="16 Jan 1999" author="MB">
+  Finalised the SWI specification and added the file format
+ </revision>
+</history>
+
+<!-- An overview of this document -->
+<section name="Overview" tag="overview">
+Current usage of the Choices: structure is very disorganised, with each user
+selecting their own particular way of storing options. Many fail to use the
+<linkto url="http://www.thevillage.ndirect.co.uk/justin/info/choices.html">
+correct</linkto> way of accessing the Choices: structure and some still
+use files in their own directory structure.
+
+<p>This suggests a central module to maintain configuration options for
+applications. The files to be control will be textual, to prevent allow
+user fixing of problems (if necessary).
+
+<p>This module should provide :
+
+<ul>
+ <li>A means of reading options files (from Choices or an arbitrary location)
+ <li>A means of writing options files (to the correct part of Choices or the
+     original location
+ <li>A means of collating related items within a file into 'groups'
+</ul>
+
+<!-- How this document affects the user -->
+<section name="User interface" tag="userinterface">
+There is no user interface for this specification.
+
+<!-- Programming interfaces required by this document -->
+<section name="Programmer interface" tag="proginterface">
+The programmer interface is incomplete and may change without notice.
+
+<swi_base name="Options">
+<swi number="?" name="OpenFile" description="Open an options file">
+<swi_in>
+ <swi_reg r=0>Flags :
+              <bittable>
+               <bit number="0-1">Method of accessing file
+                <valuetable>
+                <value number=0>R1 contains absolute filename</value>
+                <value number=1>R1 contains the leaf name<br>
+                                R2 contains the application name,<br>
+                                R3 contains another directory name to use
+                                if Choices not present, or Choices file not
+                                present.</value>
+                <value number="2-3">Reserved</value>
+                </valuetable>
+               </bit>
+               <bit number="2-31">Reserved, must be 0</bit>
+              </bittable>
+              </swi_reg>
+ <swi_reg r=1>Pointer to filename, or leafname</swi_reg>
+ <swi_reg r=2>Pointer to application name</swi_reg>
+ <swi_reg r=3>Pointer to directory to use</swi_reg>
+</swi_in>
+<swi_out>
+ <swi_reg r=0>Opaque options handle</swi_reg>
+</swi_out>
+
+<swi_use>
+This SWI is used to open a specific, or Choices: file for access. When
+opening a specific file (type=0), only that file will be written to and read
+from.
+
+<p>When opening a Choices: file (type=1), the file read will come from
+<code>Choices:&lt;application&gt;.&lt;leafname&gt;</code> if that is present,
+or if not, from <code>&lt;directory&gt;.&lt;leafname&gt;</code>. This
+provides compatibility for applications written for older systems. When
+writing, data will be written to
+<code>&lt;Choices$Write&gt;.&lt;application&gt;.&lt;leafname&gt;</code>
+unless the Choices: structure is not present, in which case it will be
+written to <code>&lt;directory&gt;.&lt;leafname&gt;</code>.
+</swi_use>
+</swi>
+
+<swi number="?" name="CloseFile" description="Close a file, writing out any changes that are pending">
+<swi_in>
+ <swi_reg r=0>Opaque file handle</swi_reg>
+</swi_in>
+
+<swi_use>
+This SWI is used to close an Options file session. Any changes are written
+out to the relevant file. An error may be produced if the options file could
+not be written.
+</swi_use>
+</swi>
+
+<swi number=0 name="ReadGroup" description="Reads in a group description block to produce a value/tag array">
+<swi_in>
+ <swi_reg r=0>Opaque file handle</swi_reg>
+ <swi_reg r=1>Pointer to group name</swi_reg>
+ <swi_reg r=2>Flags :
+              <bittable>
+               <bit number="0-7">Group type :
+                                 <valuetable>
+                                  <value number="0">Options format</value>
+                                  <value number="1">List format</value>
+                                  <value number="other">Reserved</value>
+                                 </valuetable>
+                                 </bit>
+               <bit number="8-31">Reserved, must be 0</bit>
+              </bittable>
+              </swi_reg>
+ <swi_reg r=3>Pointer to buffer, or 0 to return size of buffer required</swi_reg>
+</swi_in>
+
+<swi_out>
+ <swi_reg r=0>Buffer size required, if r3 = 0 on entry</swi_reg>
+</swi_out>
+
+<swi_use>
+<P>This SWI is used to read a group structure into a block of memory. The block
+will be in one of two formats.
+<P>For an options group the format it:
+<offsettable>
+ <offset number=0 length=4>Pointer to tag 0</offset>
+ <offset number=4 length=4>Pointer to value 0</offset>
+ <offsetnote>Repeated until...</offsetnote>
+ <offset number="x" length=4>0</offset>
+ <offset number="x+4" length=4>0</offset>
+</offsettable>
+For a list format group the buffer is filled with a series of 0 terminated strings
+immediately following each other.
+</swi_use>
+</swi>
+
+<swi number="?" name="WriteGroup" description="Writes a group description block to the options file">
+<swi_in>
+ <swi_reg r=0>Opaque file handle</swi_reg>
+ <swi_reg r=1>Pointer to group name</swi_reg>
+ <swi_reg r=2>Flags :
+              <bittable>
+               <bit number="0-7">Group type :
+                                 <valuetable>
+                                  <value number="0">Options format</value>
+                                  <value number="1">List format</value>
+                                  <value number="other">Reserved</value>
+                                 </valuetable>
+                                 </bit>
+               <bit number="8-31">Reserved</bit>
+              </bittable>
+              </swi_reg>
+ <swi_reg r=3>Pointer to buffer</swi_reg>
+</swi_in>
+
+<swi_use>
+This SWI is used to write data from a descriptions block to a file.
+The contents of the buffer should be in the same format as for Options_ReadGroup.
+</swi_use>
+</swi>
+
+<swi number="?" name="ReadValue" description="Reads the value of a single options tag">
+<swi_in>
+ <swi_reg r=0>Opaque file handle</swi_reg>
+ <swi_reg r=1>Pointer to group name</swi_reg>
+ <swi_reg r=2>Pointer to tag name</swi_reg>
+</swi_in>
+
+<swi_out>
+ <swi_reg r=0>Pointer to a 0 terminated string containing the value for the tag</swi_reg>
+</swi_out>
+
+<swi_use>
+This SWI is used to read the value of a single option. The returned string should be
+considered read only.
+</swi_use>
+</swi>
+
+<swi number="?" name="WriteValue" description="Writes the value of a single options tag">
+<swi_in>
+ <swi_reg r=0>Opaque file handle</swi_reg>
+ <swi_reg r=1>Pointer to group name</swi_reg>
+ <swi_reg r=2>Pointer to tag name</swi_reg>
+ <swi_reg r=3>Pointer to tag value</swi_reg>
+</swi_in>
+
+<swi_use>
+This SWI is used to write the value of a single option.
+</swi_use>
+</swi>
+
+<swi number="?" name="ReadBool" description="Converts a string into a boolean value">
+<swi_in>
+ <swi_reg r=0>Pointer to a string</swi_reg>
+</swi_in>
+
+<swi_out>
+ <swi_reg r=0>0 or 1 depending on the contents of the string</swi_reg>
+</swi_out>
+
+<swi_use>
+<p>This SWI will convert a string into a boolean value.
+<p>The strings are converted as follows, ignoring case:
+ <valuetable name="String" value="Boolean value">
+  <value name=true value="TRUE (1)">
+  <value name=yes value="TRUE (1)">
+  <value name=on value="TRUE (1)">
+  <value name=1 value="TRUE (1)">
+  <value name=0 value="FALSE (0)">
+  <value name=no value="FALSE (0)">
+  <value name=off value="FALSE (0)">
+  <value name=false value="FALSE (0)">
+ </valuetable>
+</ul><!-- end indent -->
+</swi_use>
+</swi>
+
+<swi number="?" name="ReadEnum" description="Converts a string into a integer value">
+<swi_in>
+ <swi_reg r=0>Pointer to a string</swi_reg>
+ <swi_reg r=1>Pointer to an array of strings</swi_reg>
+</swi_in>
+
+<swi_out>
+ <swi_reg r=0>The index into the array that matches the given string.
+              Or -1 if it doesn't match any of them.</swi_reg>
+</swi_out>
+
+<swi_use>
+<p>This SWI will convert a string into a index value.
+<p>The string array is a series of 0 terminated strings immediately following
+each other, terminated by a single 0 byte.
+
+</swi_use>
+</swi>
+
+<!-- Data formats produced, or used by this document -->
+<section name="Data formats" tag="formats">
+
+<P>The options files are standard RISC OS text files. Any whitespace (space
+or tab) at the beginning or end of a line will be ignored. Any line where the
+first non-whitespace character is '#' is a comment line and will be ignored
+as will any lines consisting of only whitespace.
+
+<P>The file consists of a series of groups delimited by group name
+specifiers. A group name specifier starts with '[' followed by the name,
+which may contain spaces, followed by ']'.
+
+<P>The groups themselves are in one of two format (although further formats
+may be added in future). The first format (list format) is a simple list of
+newline terminated strings.
+
+<p>The second, more complex format consists of tag, value pairs in the
+format:
+
+<P><code>&lt;spaces&gt;tag name&lt;spaces&gt;:&lt;spaces&gt;value&lt;spaces&gt;\n</code>
+<P>Where <code>&lt;spaces&gt;</code> is 0 or more space or tabs.
+<P>An example options file would be:
+<pre>
+# choices file for widget
+
+[auto load]
+# a list of files to load when starting widget
+ADFS::4.$.afile
+ADFS::4.$.somedir.anotherfile
+ADFS::4.$.thingy
+
+[misc options]
+somevalue    : 42
+window width : 332
+auto open    : Yes
+</pre>
+
+<!-- Other related software/hardware/protocols required -->
+<section name="External dependencies" tag="external">
+This specification has no external dependencies.
+
+<!-- How this document will be tested for compliance -->
+<section name="Testing scheme" tag="testing">
+<!-- Meeting this means that we have succeeded -->
+<subsection name="Acceptance test" tag="acceptance">
+<p>The options file parser must be capable of coping with very malformed
+files. We have to expect that users (and programmers) will edit the files by
+hand and often get that wrong. At worse the program should fail to read a few
+options, but even in the worst cases the vast majority of the file should be
+able to be read.
+
+<p>The layout of option files must be preserved as it will be layed out in
+such a way as to make it easier for the human reader. So, any whitspace must
+remain in the file after it is modified. As should any comments. If no
+changes are made to the options then the file written out should be identical
+to the file read in.
+
+<p>Transition to the Options system should be as painless as possible for
+both programmers and users.
+
+<!-- How we will perform tests for compliance to specification -->
+<subsection name="Test strategy" tag="teststrategy">
+The Options module should be tested by a number of programmers, in their own
+applications, as well as in some of the OS components.
+
+<!-- Allowable, or physical deviance from this document -->
+<section name="Non-compliance" tag="noncompliance">
+This section has not been written.
+
+<!-- Questions, problems and other things which are not resolved -->
+<section name="Outstanding issues" tag="outstanding">
+The implementation of the read and write single value has got to be worked on but I
+think that the whole file could be parsed when it is first opened. That way the values
+would already be in memory so direct pointers could be returned.
+</funcspec>
+

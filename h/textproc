@@ -1,0 +1,47 @@
+/*******************************************************************
+ * File:     textproc.h
+ * Purpose:  Text processing things
+ * Author:   Justin Fletcher
+ * Date:     06 Aug 1998
+ ******************************************************************/
+
+#ifndef TEXTPROC_H
+#define TEXTPROC_H
+
+/* skip preceeding whitespace, leave x pointing to the last character */
+#define SKIPPREWS(x)  do { x--; } while ((x[0]=='\t') || (x[0]==' '));
+/* skip succeeding whitespace, leave x pointing to the first character */
+#define SKIPPOSTWS(x) do { x++; } while ((x[0]=='\t') || (x[0]==' '));
+
+
+/*********************************************** <c> Gerph *********
+ Function:     loadfile
+ Description:  Load a file into memory
+ Parameters:   file-> filename
+               len-> where to store the length
+ Returns:      pointer to a the file
+ Note:         The file will have two LF's stored at its end
+ ******************************************************************/
+void *loadfile(char *file,int *len);
+
+/*********************************************** <c> Gerph *********
+ Function:     findnextws
+ Description:  finds the next whitespace character
+ Parameters:   p-> string
+ Returns:      pointer to next ws, or 0 if not found
+ ******************************************************************/
+char *findnextws(char *p);
+
+/*********************************************** <c> Gerph *********
+ Function:     readline
+ Description:  Read a line from memory, concatenating the bits with
+               \'s on the end
+ Parameters:   block-> start of data
+               len = length of data
+               theoffset = offset to start at
+ Returns:      pointer to a dynamic string (will only live as long
+               as you don't call readline again)
+ ******************************************************************/
+char *readline(char *block, int blklen, int *theoffset);
+
+#endif
