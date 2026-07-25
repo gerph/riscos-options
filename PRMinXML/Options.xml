@@ -1,0 +1,493 @@
+<?xml version="1.0"?>
+<!DOCTYPE riscos-prm PUBLIC "-//Gerph//DTD PRM documentation 1.03//EN"
+                            "http://gerph.org/dtd/103/prm.dtd">
+
+<riscos-prm>
+<chapter title="Options module">
+
+<section title="Introduction and Overview">
+<p>
+Usage of the <filename type="riscos">Choices:</filename> structure has historically been
+disorganised, with each application author selecting their own particular way of storing
+options. Many applications fail to use the
+<reference type="link" href="http://www.thevillage.ndirect.co.uk/justin/info/choices.html" name="correct"/>
+way of accessing the <filename type="riscos">Choices:</filename> structure, and some still use
+files kept in their own private directory structure.
+</p>
+<p>
+This suggests the need for a central module to maintain configuration options for
+applications. The files it controls are textual, so as to allow the user to fix problems by
+hand if necessary.
+</p>
+<p>
+This module provides:
+</p>
+<p>
+<list type="unordered">
+ <item><p>A means of reading options files, either from
+ <filename type="riscos">Choices:</filename> or an arbitrary location</p></item>
+ <item><p>A means of writing options files, to the correct part of
+ <filename type="riscos">Choices:</filename> or to the original location</p></item>
+ <item><p>A means of collating related items within a file into 'groups'</p></item>
+</list>
+</p>
+</section>
+
+<section title="Technical details">
+
+<subsection title="User interface">
+<p>
+There is no user interface provided by this module.
+</p>
+</subsection>
+
+<subsection title="Programmer interface">
+<p>
+The programmer interface is incomplete and may change without notice.
+</p>
+</subsection>
+
+<subsection title="Data formats">
+<p>
+Options files are standard RISC OS text files. Any whitespace (space or tab) at the
+beginning or end of a line is ignored. Any line where the first non-whitespace character
+is <userinput>#</userinput> is a comment line and is ignored, as is any line consisting only
+of whitespace.
+</p>
+<p>
+The file consists of a series of groups, delimited by group name specifiers. A group name
+specifier starts with <userinput>[</userinput>, followed by the name (which may contain
+spaces), followed by <userinput>]</userinput>.
+</p>
+<p>
+The groups themselves are in one of two formats (although further formats may be added in
+future):
+</p>
+<p>
+<list type="unordered">
+ <item><p>The <em>list format</em> is a simple list of newline-terminated strings.</p></item>
+ <item><p>The <em>options format</em> consists of tag, value pairs in the form
+ <userinput>&lt;spaces&gt;tag name&lt;spaces&gt;:&lt;spaces&gt;value&lt;spaces&gt;</userinput>,
+ where <userinput>&lt;spaces&gt;</userinput> is zero or more spaces or tabs.</p></item>
+</list>
+</p>
+<p>
+Items at the start of a file, before any group is declared, are deemed to be in the group
+<userinput>$</userinput>. Group names are case insensitive, as are tag entries.
+</p>
+<p>
+<extended-example type="format">
+An example options file for an application called "widget"
+<br/><br/>
+# choices file for widget
+
+[auto load]
+# a list of files to load when starting widget
+ADFS::4.$.afile
+ADFS::4.$.somedir.anotherfile
+ADFS::4.$.thingy
+
+[misc options]
+somevalue    : 42
+window width : 332
+auto open    : Yes
+</extended-example>
+</p>
+<p>
+When a group is read with <reference type="swi" name="Options_ReadGroup"/> or written with
+<reference type="swi" name="Options_WriteGroup"/>, its content is passed as a block of
+memory in one of two layouts, matching the group format.
+</p>
+<p>
+For an options group, the block holds a series of tag/value pointer pairs, terminated by a
+null pair:
+</p>
+<p>
+<offset-table head-number="Offset" head-name="Name" head-data-size="Size" head-value="Contents">
+ <offset number="0" name="tag" data-size="4">Pointer to tag 0</offset>
+ <offset number="4" name="value" data-size="4">Pointer to value 0, or NULL if no value is set
+ (for example in list groups)</offset>
+ <offset number="x" state="content">Repeated tag/value pointer pairs</offset>
+ <offset number="x" name="tag" data-size="4">0</offset>
+ <offset number="x+4" name="value" data-size="4">0</offset>
+</offset-table>
+</p>
+<p>
+For a list format group, the buffer is filled with a series of null-terminated strings
+immediately following one another.
+</p>
+</subsection>
+
+<subsection title="External dependencies">
+<p>
+This specification has no external dependencies.
+</p>
+</subsection>
+
+</section>
+
+<section title="SWI calls">
+<p>
+This module allocates the <userinput>Options_</userinput> SWI chunk at &hex;52F80.
+</p>
+
+<swi-definition name="Options_OpenFile" number="52F80" description="Open an options file">
+<entry>
+ <register-use number="0">Flags:
+  <bitfield-table>
+   <bit number="0-1" name="Method of accessing file">
+    <p>
+    <value-table head-number="Value" head-value="Meaning">
+     <value number="0">R1 contains an absolute filename</value>
+     <value number="1">R1 contains the leafname, R2 contains the application name, and R3
+     contains another directory name to use if <filename type="riscos">Choices:</filename>
+     is not present, or the <filename type="riscos">Choices:</filename> file is not
+     present</value>
+     <value number="2-3">Reserved</value>
+    </value-table>
+    </p>
+   </bit>
+   <bit number="2-31" state="reserved">Reserved, must be 0</bit>
+  </bitfield-table>
+ </register-use>
+ <register-use number="1">Pointer to filename, or leafname</register-use>
+ <register-use number="2">Pointer to application name</register-use>
+ <register-use number="3">Pointer to directory to use</register-use>
+</entry>
+<exit>
+ <register-use number="0">Opaque options handle</register-use>
+</exit>
+<use>
+<p>
+This SWI is used to open a specific file, or a <filename type="riscos">Choices:</filename>
+file, for access. When opening a specific file (type 0), only that file is written to and
+read from.
+</p>
+<p>
+When opening a <filename type="riscos">Choices:</filename> file (type 1), the file read
+comes from <filename type="riscos">Choices:&lt;application&gt;.&lt;leafname&gt;</filename>
+if that is present, or if not, from
+<filename type="riscos">&lt;directory&gt;.&lt;leafname&gt;</filename>. This provides
+compatibility for applications written for older systems. When writing, data is written to
+<filename type="riscos">&lt;Choices$Write&gt;.&lt;application&gt;.&lt;leafname&gt;</filename>
+unless the <filename type="riscos">Choices:</filename> structure is not present, in which
+case it is written to <filename type="riscos">&lt;directory&gt;.&lt;leafname&gt;</filename>.
+</p>
+</use>
+<related>
+ <reference type="swi" name="Options_CloseFile"/>
+</related>
+</swi-definition>
+
+<swi-definition name="Options_CloseFile" number="52F81"
+                description="Close a file, writing out any changes that are pending">
+<entry>
+ <register-use number="0">Opaque file handle</register-use>
+</entry>
+<use>
+<p>
+This SWI is used to close an Options file session. Any changes are written out to the
+relevant file. An error may be produced if the options file could not be written.
+</p>
+</use>
+<related>
+ <reference type="swi" name="Options_OpenFile"/>
+</related>
+</swi-definition>
+
+<swi-definition name="Options_ReadGroup" number="52F82"
+                description="Reads in a group description block to produce a value/tag array">
+<entry>
+ <register-use number="0">Opaque file handle</register-use>
+ <register-use number="1">Pointer to group name</register-use>
+ <register-use number="2">Flags:
+  <bitfield-table>
+   <bit number="0-7" name="Group type">
+    <p>
+    <value-table head-number="Value" head-value="Meaning">
+     <value number="0">Options format</value>
+     <value number="1">List format</value>
+    </value-table>
+    </p>
+    Other values are reserved.
+   </bit>
+   <bit number="8-31" state="reserved">Reserved, must be 0</bit>
+  </bitfield-table>
+ </register-use>
+ <register-use number="3">Pointer to buffer</register-use>
+ <register-use number="4">Length of buffer, or negative to return the size of buffer
+ needed</register-use>
+</entry>
+<exit>
+ <register-use number="0">Size of data written, or negative size of buffer needed</register-use>
+</exit>
+<use>
+<p>
+This SWI is used to read a group structure into a block of memory. The block is in one of
+the two formats described in Data formats, depending on the group type requested.
+</p>
+</use>
+<related>
+ <reference type="swi" name="Options_WriteGroup"/>
+</related>
+</swi-definition>
+
+<swi-definition name="Options_WriteGroup" number="52F83"
+                description="Writes a group description block to the options file">
+<entry>
+ <register-use number="0">Opaque file handle</register-use>
+ <register-use number="1">Pointer to group name</register-use>
+ <register-use number="2">Flags:
+  <bitfield-table>
+   <bit number="0-7" name="Group type">
+    <p>
+    <value-table head-number="Value" head-value="Meaning">
+     <value number="0">Options format</value>
+     <value number="1">List format</value>
+    </value-table>
+    </p>
+    Other values are reserved.
+   </bit>
+   <bit number="8-31" state="reserved">Reserved</bit>
+  </bitfield-table>
+ </register-use>
+ <register-use number="3">Pointer to buffer</register-use>
+</entry>
+<use>
+<p>
+This SWI is used to write data from a description block to a file. The contents of the
+buffer should be in the same format as for <reference type="swi" name="Options_ReadGroup"/>.
+The group type must match that of the group being written to, otherwise an error is
+generated.
+</p>
+</use>
+<related>
+ <reference type="swi" name="Options_ReadGroup"/>
+</related>
+</swi-definition>
+
+<swi-definition name="Options_ReadValue" number="52F84"
+                description="Reads the value of a single options tag">
+<entry>
+ <register-use number="0">Opaque file handle</register-use>
+ <register-use number="1">Pointer to group name</register-use>
+ <register-use number="2">Flags:
+  <bitfield-table>
+   <bit number="0-7" name="Group type">
+    <p>
+    <value-table head-number="Value" head-value="Meaning">
+     <value number="0">Options format</value>
+     <value number="1">List format</value>
+    </value-table>
+    </p>
+    Other values are reserved.
+   </bit>
+   <bit number="8-31" state="reserved">Reserved</bit>
+  </bitfield-table>
+ </register-use>
+ <register-use number="3">Pointer to tag name</register-use>
+</entry>
+<exit>
+ <register-use number="0">Pointer to a null terminated string containing the value for the
+ tag</register-use>
+</exit>
+<use>
+<p>
+This SWI is used to read the value of a single option. The returned string should be
+considered read only.
+</p>
+</use>
+<related>
+ <reference type="swi" name="Options_WriteValue"/>
+</related>
+</swi-definition>
+
+<swi-definition name="Options_WriteValue" number="52F85"
+                description="Writes the value of a single options tag">
+<entry>
+ <register-use number="0">Opaque file handle</register-use>
+ <register-use number="1">Pointer to group name</register-use>
+ <register-use number="2">Flags:
+  <bitfield-table>
+   <bit number="0-7" name="Group type">
+    <p>
+    <value-table head-number="Value" head-value="Meaning">
+     <value number="0">Options format</value>
+     <value number="1">List format</value>
+    </value-table>
+    </p>
+    Other values are reserved.
+   </bit>
+   <bit number="8-31" state="reserved">Reserved</bit>
+  </bitfield-table>
+ </register-use>
+ <register-use number="3">Pointer to tag name, or line number for list format</register-use>
+ <register-use number="4">Pointer to tag value</register-use>
+</entry>
+<use>
+<p>
+This SWI is used to write the value of a single option.
+</p>
+</use>
+<related>
+ <reference type="swi" name="Options_ReadValue"/>
+ <reference type="swi" name="Options_DeleteValue"/>
+</related>
+</swi-definition>
+
+<swi-definition name="Options_DeleteValue" number="52F86"
+                description="Removes an option from a group">
+<entry>
+ <register-use number="0">Opaque file handle</register-use>
+ <register-use number="1">Pointer to group name</register-use>
+ <register-use number="2">Flags:
+  <bitfield-table>
+   <bit number="0-7" name="Group type">
+    <p>
+    <value-table head-number="Value" head-value="Meaning">
+     <value number="0">Options format</value>
+     <value number="1">List format</value>
+    </value-table>
+    </p>
+    Other values are reserved.
+   </bit>
+   <bit number="8-31" state="reserved">Reserved</bit>
+  </bitfield-table>
+ </register-use>
+ <register-use number="3">Pointer to tag name, or line number for list format</register-use>
+</entry>
+<use>
+<p>
+This SWI is used to remove a single option.
+</p>
+</use>
+<related>
+ <reference type="swi" name="Options_WriteValue"/>
+</related>
+</swi-definition>
+
+<swi-definition name="Options_ReadBoolean" number="52F87"
+                description="Converts a string into a boolean value">
+<entry>
+ <register-use number="0">Pointer to a string</register-use>
+</entry>
+<use>
+<p>
+This SWI converts a string into a boolean value.
+</p>
+<p>
+The strings are converted as follows, ignoring case: <userinput>true</userinput>,
+<userinput>yes</userinput>, <userinput>on</userinput>, and <userinput>1</userinput> are
+converted to TRUE (1). The strings <userinput>0</userinput>, <userinput>no</userinput>,
+<userinput>off</userinput>, and <userinput>false</userinput> are converted to FALSE (0).
+</p>
+</use>
+</swi-definition>
+
+<swi-definition name="Options_ReadEnum" number="52F88"
+                description="Converts a string into an integer value">
+<entry>
+ <register-use number="0">Pointer to a string</register-use>
+ <register-use number="1">Pointer to a comma separated list of strings</register-use>
+</entry>
+<exit>
+ <register-use number="0">The index into the array that matches the given string, or -1 if
+ it does not match any of them</register-use>
+</exit>
+<use>
+<p>
+This SWI converts a string into an index value. The string being matched can contain any
+character except control characters and a comma. The strings are matched case
+insensitively.
+</p>
+</use>
+</swi-definition>
+
+</section>
+
+<section title="Testing scheme">
+
+<subsection title="Acceptance test">
+<p>
+The options file parser must be capable of coping with very malformed files. Users, and
+programmers, will edit the files by hand and often get that wrong. At worst the program
+should fail to read a few options, but even in the worst cases the vast majority of the
+file should be able to be read.
+</p>
+<p>
+The layout of option files must be preserved, as it will be laid out in such a way as to
+make it easier for the human reader. So, any whitespace must remain in the file after it is
+modified, as should any comments. If no changes are made to the options then the file
+written out should be identical to the file read in.
+</p>
+<p>
+Transition to the Options system should be as painless as possible for both programmers
+and users.
+</p>
+</subsection>
+
+<subsection title="Test strategy">
+<p>
+The Options module should be tested by a number of programmers, in their own applications,
+as well as in some of the OS components.
+</p>
+</subsection>
+
+</section>
+
+<section title="Non-compliance">
+<p>
+<fixme>This section has not been written.</fixme>
+</p>
+</section>
+
+<section title="Outstanding issues">
+<p>
+The implementation of the read and write single value SWIs has to be worked on, but the
+whole file could be parsed when it is first opened. That way the values would already be
+in memory, so direct pointers could be returned.
+</p>
+</section>
+
+</chapter>
+
+<!-- MetaData -->
+<meta>
+ <maintainer>
+  <email name="Charles Ferguson" address="gerph@gerph.org"/>
+ </maintainer>
+ <disclaimer>
+  <p>
+  &copy; RISCOS Ltd.
+  </p>
+ </disclaimer>
+
+ <history>
+  <revision number="1" author="JF" date="14 Jan 1999" title="Draft">
+   <change>Private draft, from an email conversation with MB.</change>
+  </revision>
+  <revision number="2" author="MB" date="16 Jan 1999" title="Issue 1">
+   <change>Finalised the SWI specification and added the file format.</change>
+  </revision>
+  <revision number="3" author="JF" date="15 Apr 1999" title="Issue 1 revision 3">
+   <change>Added SWI chunk allocation and began updating documentation to match the actual
+   implementation.</change>
+  </revision>
+  <revision number="4" author="JF" date="17 Jan 2000" title="Issue 1 revision 4">
+   <change>Miscellaneous changes to tidy up for the developer CD.</change>
+  </revision>
+  <revision number="5" author="JF" date="18 Jan 2000" title="Issue 1 revision 5">
+   <change>Updates for implementation. Options_ReadEnum is now a comma separated list, rather
+   than a null separated list, as the latter is a pain to use from BASIC.</change>
+  </revision>
+  <revision number="6" author="Charles Ferguson" date="25 Jul 2026" title="PRM-in-XML conversion">
+   <change>Converted the specification from HTML into PRM-in-XML format, retaining the
+   original document history and content.</change>
+  </revision>
+ </history>
+
+ <related>
+  <reference type="link" href="http://www.riscos.com/" name="RISCOS Ltd"/>
+ </related>
+</meta>
+</riscos-prm>

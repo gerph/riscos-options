@@ -1,0 +1,1565 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/TR/xhtml1/strict" lang="en"><!--
+  Auto-generated using XSLT stylesheet created by Gerph.
+-->
+<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta charset="utf-8"></meta><meta name="author" content="Charles Ferguson"></meta><meta name="description" content="Options module"></meta><title>RISC OS Programmers Reference Manuals : Options module</title><style type="text/css">
+body {
+  font-family: serif;
+}
+h1 {
+  font-size: 2rem;
+}
+h2 {
+  font-size: 1.5rem;
+}
+h3 {
+  font-size: 1rem;
+}
+h4 {
+  font-size: 1rem;
+}
+h5 {
+  font-size: 1rem;
+}
+h1, h2, h3, h4, h5 {
+  font-family: sans-serif;
+  font-weight: bold;
+}
+
+/* Markers for bad content */
+dd {
+    background-color: pink;
+}
+dl {
+    background-color: lightblue;
+}
+dt {
+    background-color: lightgreen;
+}
+
+/* Errors we recognise */
+.error-reference {
+    color: red;
+    font-size: 3em;
+}
+
+header {
+}
+body.chapter header h1 {
+  margin-top: 0em;
+  padding-top: 0.67em;
+  padding-bottom: 0.67em;
+  border-top: 2px solid black;
+  border-bottom: 2px solid black;
+}
+body.front-matter-title h1 {
+    font-size: 4rem;
+}
+body.front-matter-title h2 {
+    font-size: 2.5rem;
+}
+body.front-matter-title h3 {
+    font-size: 2rem;
+}
+body.front-matter-title {
+    text-align: center;
+    width: 100%;
+    max-height: 70%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 45%;
+}
+
+/* Copyright page doesn't actually have any headings */
+body.front-matter-copyright h1, body.front-matter-copyright h2 {
+    display: none;
+}
+
+body.front-matter-copyright section.section {
+    break-before: auto;
+}
+
+body.front-matter-copyright section.section:not(:first-of-type) {
+    position: absolute;
+    bottom: 0;
+}
+
+/* Dedication page is a simple text */
+body.front-matter-dedication h1, body.front-matter-dedication h2 {
+    display: none;
+}
+
+body.front-matter-dedication section.section {
+    font-size: 2rem;
+    font-style: italic;
+    text-align: center;
+    max-height: 70%;
+    margin-left: 20%;
+    margin-right: 20%;
+    margin-top: 45%;
+}
+
+/* Epigraph has multiple blocks of quotes */
+body.front-matter-epigraph h1, body.front-matter-epigraph h2 {
+    display: none;
+}
+
+body.front-matter-epigraph section.section:first-of-type {
+    break-before: recto;
+}
+
+body.front-matter-epigraph section.section {
+    font-size: 1.5rem;
+    font-style: italic;
+    max-height: 80%;
+    margin-left: 15%;
+    margin-right: 15%;
+    margin-top: 25%;
+}
+
+body.front-matter-epigraph section.subsection {
+    display: flex;
+    flex-direction: column;
+}
+
+body.front-matter-epigraph section.subsection p {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+body.front-matter-epigraph section.subsection h3 {
+    order: 1;
+    font-style: normal;
+    text-align: right;
+    margin-top: 0;
+    margin-bottom: 3rem;
+}
+body.front-matter-epigraph section.subsection h3:before {
+    content: "\2014\00A0";
+}
+
+
+
+/* Paged content page type from the body */
+body.cover {
+    /* Usually quite different */
+    page: cover;
+}
+body.front-matter {
+    /* Generally omits headers and footers, and styles differently */
+    page: front-matter;
+}
+body.front-matter footer {
+    display: none;
+}
+body.indexed-contents {
+    /* Resets the page counter to 1, uses roman page numbers */
+    page: contents;
+    counter-reset: page 1;
+}
+body.chapter {
+    /* Regular chapters */
+    page: chapter;
+}
+body.chapter-front-matter {
+    /* Chapters styled in the usual way, but using roman page numbers */
+    page: chapter;
+}
+
+
+/* Cover page default style */
+body.cover {
+    height: 100pvh;
+}
+body.cover article {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    height: 100pvh;
+}
+
+body.cover .cover-title {
+    font-size: 3rem;
+    text-align: center;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    order: 1;
+}
+body.cover .cover-subtitle {
+    font-size: 2rem;
+    text-align: center;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+    order: 2;
+}
+
+body.cover img.cover-image {
+    width: 100%;
+    display: block;
+    margin-bottom: 3rem;
+    order: 3;
+}
+
+body.cover .cover-author {
+    font-size: 1.5rem;
+    text-align: right;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    display: inline-block;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    order: 4;
+}
+
+body.cover .cover-publisher {
+    font-size: 1.5rem;
+    text-align: left;
+    margin-bottom: 0.5rem;
+    display: inline-block;
+    position: absolute;
+    bottom: 0;
+    order: 4;
+}
+
+
+header .chapter-vars,
+header h1 .chapter-docgroup-name,
+header h1 .chapter-docgroup-part {
+  display: none
+}
+body.chapter header h1 .chapter-number {
+  display: inline-block;
+}
+body.chapter header h1 .chapter-number::after {
+  display: inline-block;
+  content: "\00a0";
+}
+header h1 .chapter-name {
+  display: inline-block;
+}
+
+nav {
+  border-bottom: 2px solid black;
+}
+nav h2 {
+}
+nav > ul {
+  padding-left: 5rem;
+}
+
+body.chapter section.section {
+  border-bottom: 2px solid black;
+  padding-bottom: 1rem;
+}
+body.chapter section.section {
+  padding-left: 5rem;
+}
+body.chapter section.section h2 {
+  margin-left: -5rem;
+}
+body.chapter section.subsection h3 {
+  margin-left: -5rem;
+}
+body.chapter section.subsubsection h4 {
+  margin-left: -2.5rem;
+}
+body.chapter section.category h5 {
+}
+
+/* Try to keep together the headings */
+body.chapter section.section h2 + p,
+body.chapter section.subsection h3 + p,
+body.chapter section.subsubsection h4 + p,
+body.chapter section.category h5 + p {
+    break-before: avoid;
+}
+body.chapter section.section h2 + table,
+body.chapter section.subsection h3 + table,
+body.chapter section.subsubsection h4 + table,
+body.chapter section.category h5 + table {
+    break-before: avoid;
+}
+
+
+.service-definition, .swi-definition, .vector-definition, .upcall-definition, .command-definition, .vdu-definition, .error-definition, .sysvar-definition, .message-definition, .tboxmessage-definition, .tboxmethod-definition, .entry-definition {
+  border-top: 2px solid black;
+}
+.definition-header {
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+  -prince-bookmark-level: 3;
+  -prince-bookmark-label: attr(data-label);
+}
+.definition-title {
+  display: block;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 1.5rem;
+  text-align: right;
+}
+.definition-name-prefix {
+}
+.definition-name {
+}
+.definition-reason {
+}
+.definition-reason-name {
+    display: block;
+}
+.definition-subtitle {
+  display: block;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 1.5em;
+  text-align: right;
+}
+.definition-subtitle::before {
+  content: '(';
+}
+.definition-subtitle::after {
+  content: ')';
+}
+.definition-number {
+}
+.definition-number-prefix {
+}
+.definition-description {
+    display: block;
+}
+section.definition {
+  margin-left: 0em;
+  margin-bottom: 1em;
+}
+section.definition::before {
+  display: block;
+  font-weight: bold;
+  font-family: sans-serif;
+  font-size: 1.1rem;
+  margin-left: -2.5rem;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+}
+.definition-internal {
+}
+.definition-entry::before {
+  content: 'On entry';
+}
+.definition-exit::before {
+  content: 'On exit';
+}
+.definition-interrupts::before {
+  content: 'Interrupts';
+}
+.definition-processor::before {
+  content: 'Processor mode';
+}
+.definition-reentrancy::before {
+  content: 'Re-entrancy';
+}
+.definition-use::before {
+  content: 'Use';
+}
+.definition-syntax::before {
+  content: 'Syntax';
+}
+.definition-parameters::before {
+  content: 'Parameters';
+}
+.definition-message::before {
+  content: 'Message';
+}
+.definition-message-source::before {
+  content: 'Source';
+}
+.definition-message-destination::before {
+  content: 'Destination';
+}
+.definition-message-delivery::before {
+  content: 'Delivery';
+}
+.definition-declarations::before {
+  content: 'Declarations';
+}
+.definition-compatibility::before {
+  content: 'Compatibility';
+}
+.definition-examples::before {
+  content: 'Examples';
+}
+.definition-related-apis::before {
+  content: 'Related APIs';
+}
+.definition-related-commands::before {
+  content: 'Related * commands';
+}
+.definition-related-swis::before {
+  content: 'Related SWIs';
+}
+.definition-related-services::before {
+  content: 'Related services';
+}
+.definition-related-tboxmethods::before {
+  content: 'Related Toolbox methods';
+}
+.definition-related-tboxmessages::before {
+  content: 'Related Toolbox messages';
+}
+.definition-related-vectors::before {
+  content: 'Related vectors';
+}
+.definition-related-upcalls::before {
+  content: 'Related upcalls';
+}
+.definition-related-errors::before {
+  content: 'Related error messages';
+}
+.definition-related-sysvars::before {
+  content: 'Related system variables';
+}
+.definition-related-entries::before {
+  content: 'Related entry points';
+}
+.definition-related-messages::before {
+  content: 'Related messages';
+}
+.definition-related-vdus::before {
+  content: 'Related VDU codes';
+}
+.register-use-register, .register-use-flag {
+  text-align: right;
+}
+.register-use-divider {
+  max-width: 2em;
+}
+.register-name {
+}
+.definition-syntax-line {
+  font-family: monospace;
+}
+.definition-parameters-list {
+    border-spacing: 0.375rem 0px;
+}
+.definition-parameters-list td {
+    vertical-align: top;
+    border-spacing: 0px;
+}
+.definition-parameter > td {
+    padding-bottom: 0.5em;
+}
+.definition-parameter-aliases {
+}
+.definition-parameter-aliases td {
+    padding: 0px;
+}
+.definition-parameter-or {
+}
+.definition-parameter-or-alias {
+    font-style: italic;
+    margin-left: -1.75em;
+}
+table {
+    border-spacing: 2px 0px;
+}
+
+.user-table {
+    border: 0;
+    /* In all our tables we try to avoid breaking the tables up */
+    break-inside: avoid;
+}
+.user-table td, .user-table th {
+    padding-left: 0.5em;
+}
+.user-table td {
+    padding-top: 0.375em;
+}
+.user-table .table-number {
+    min-width: 3em;
+}
+.table-head {
+    vertical-align: bottom;
+}
+.table-head .table-number {
+    text-align: right;
+}
+.table-head .table-data-size {
+    text-align: right;
+}
+.table-head .table-name {
+    text-align: left;
+}
+.table-head .table-extra {
+    text-align: left;
+}
+.table-head .table-value {
+    text-align: left;
+}
+.table-body {
+    vertical-align: top;
+}
+.table-body .table-number {
+    text-align: right;
+}
+.offset-table > .table-body > tr > .table-number::before {
+    content: '+';
+}
+.message-table > .table-body > tr > .table-number::before {
+    content: 'R1+';
+}
+.offset-table > .table-head > tr > .table-number,
+.message-table > .table-head > tr > .table-number,
+.offset-table > .table-body > tr > .table-number,
+.message-table > .table-body > tr > .table-number {
+    text-align: left;
+}
+
+.table-body .table-data-size {
+    text-align: right;
+}
+.table-body .table-name {
+    text-align: left;
+}
+.table-body .table-extra {
+    text-align: left;
+}
+.table-body .table-value {
+    text-align: left;
+}
+.table-body .table-value.table-value-bitstate {
+    text-align: right;
+}
+
+.version-table:before {
+    content: "Compatibility";
+    font-weight: bold;
+    line-height: 2em;
+}
+.version-table {
+    padding-left: 0.5em;
+}
+.version-table .version {
+    padding-left: 1em;
+}
+
+.version + .version {
+    margin-top: 1em;
+}
+.version-qualifiers {
+    font-style: italic;
+    display: block;
+}
+.version-supplier {
+    margin-right: 1em;
+}
+.version-module {
+    margin-right: 1em;
+}
+.version-module-name:after {
+    content: "\00a0\00a0";
+}
+.version-module, .version-riscos {
+    margin-right: 1em;
+}
+.version-lt:before {
+    content: "<\00a0";
+}
+.version-ltge-separator:before {
+    content: ",\00a0\00a0";
+}
+.version-ge:before {
+    content: "\2265\00a0";
+}
+.version-riscos:before {
+    content: "RISC\00a0OS\00a0";
+}
+.version-hardware {
+    margin-right: 1em;
+}
+.version-architecture {
+    margin-right: 1em;
+}
+.version-content {
+    padding-left: 2em;
+}
+
+.userreplace {
+  font-style: italic;
+}
+.userreplace::before {
+  content: "<";
+}
+.userreplace::after {
+  content: ">";
+}
+.optional::before {
+  content: "[";
+}
+.optional::after {
+  content: "]";
+}
+.userinput {
+  font-family: monospace;
+  font-weight: bold;
+}
+.systemoutput {
+  font-family: monospace;
+}
+.menuoption {
+  font-weight: bold;
+}
+.actionbutton {
+  font-weight: bold;
+}
+.variable {
+  font-family: monospace;
+}
+.command {
+  font-family: monospace;
+}
+.function {
+  font-family: monospace;
+}
+.filename {
+  font-family: monospace;
+}
+.sysvar {
+  font-family: monospace;
+}
+.extended-example {
+  display: block;
+  font-family: monospace;
+  white-space: pre;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+th, td {
+  vertical-align: top;
+}
+
+td > p:first-of-type {
+    margin-top: 0em;
+}
+
+article li > p:first-of-type {
+    margin-top: 0em;
+}
+
+.images {
+    text-align: center;
+}
+
+figure {
+    margin-left: 2rem;
+    margin-right: 2rem;
+    margin-top: 0.5rem;
+    object-fit: scale-down;
+    display: inline-block;
+    text-align: center;
+}
+figure figcaption {
+    text-align: center;
+    font-style: italic;
+    max-width: 66%;
+    margin-left: auto;
+    margin-right: auto;
+}
+img {
+    max-width: 100%;
+}
+
+/* Strong emphasis is in bold, regular emphasis is in italic */
+strong {
+    font-style: normal;
+    font-weight: bold;
+}
+em {
+    font-style: italic;
+    font-weight: normal;
+}
+
+.fixme {
+    display: inline-block;
+    border-radius: 4px;
+    border: 2px solid red;
+    padding: 0.125em 0.5em;
+}
+
+.fixme-label::before {
+    content: "⚠";
+    color: red;
+    margin-right: 0.25em;
+    vertical-align: middle;
+}
+
+kbd {
+    font-size: 1rem;
+    font-family: monospace;
+    white-space: nowrap;
+    border: 1px solid #aaa;
+    border-style: outset;
+    border-radius: 4px;
+    padding: 0.25em 0.25em 0.125em 0.25em;
+    margin: 0px 0.125em 0px 0px;
+    vertical-align: baseline;
+    line-height: 1.8em;
+}
+
+.key {
+    background: #f0f0f0;
+}
+
+.mouse {
+    background: #f0f0c0;
+}
+
+
+@media print {
+    .mouse {
+        background: #e0e0e0;
+    }
+}
+
+
+span.mouse-repeat:before {
+    display: inline-block;
+    margin-right: 0.125em;
+}
+
+span.mouse-repeat-2:before {
+    content: "2×";
+}
+span.mouse-repeat-3:before {
+    content: "3×";
+}
+span.mouse-repeat-4:before {
+    content: "4×";
+}
+
+span.mouse-action:after {
+    display: inline-block;
+    margin-right: 0.25em;
+}
+
+
+
+footer {
+  padding-bottom: 1em;
+  padding-top: 1em;
+  border-bottom: 2px solid black;
+}
+section.meta > * {
+  margin-left: 2.5em;
+}
+section.meta h2 {
+  margin-left: 0em;
+}
+div.meta tr th {
+  text-align: right;
+}
+div.meta tr.history table th {
+  text-align: left;
+}
+div.meta table.history {
+  border: none;
+  border-spacing: 0.375rem 0px;
+}
+div.meta table.history th {
+  text-align: left;
+  padding-top: 0px;
+}
+.revision-date {
+  white-space: nowrap;
+}
+ul.revision-changes {
+  padding-left: 1em;
+  margin-left: 0.5em;
+}
+h5.revision-title {
+  font-size: 1em;
+  font-weight: bold;
+  font-family: serif;
+  margin-top: 0em;
+  margin-bottom: 0em;
+}
+div.meta tr.history ul {
+  margin-top: 0em;
+  margin-bottom: 0em;
+}
+div.meta td.disclaimer > p {
+  margin-block-start: 0em;
+  padding-top: 0em;
+  margin-top: 0em;
+  margin-bottom: 0em;
+}
+
+.maintainer .email {
+    display: block;
+}
+
+
+ul.indexed-bar {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    padding-left: 0em;
+    margin-left: 0rem;
+}
+ul.indexed-bar li {
+    display: inline-block;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    margin-left: 0.125rem;
+    margin-right: 0.125rem;
+    /*background-color: lightgray;*/
+    text-align: center;
+}
+ul.indexed-bar li span {
+    display: block;
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+.index-bar-index-number {
+    font-size: smaller;
+}
+span.index-bar-selected {
+    background-color: lightblue;
+    font-style: italic;
+}
+
+footer.indexed-footer p {
+    margin-bottom: 0em;
+    margin-top: 0em;
+}
+
+footer.indexed-footer p + p {
+    margin-top: 0.25rem;
+}
+
+nav.indexed-bar-bottom {
+    margin-top: 0.25rem;
+    border-top: 2px solid black;
+}
+
+section.indexed-root {
+    margin-left: 3rem;
+    margin-right: 3rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+section.indexed-section {
+    margin-top: 2rem;
+    margin-bottom: 0rem;
+    padding-left: 3rem;
+}
+section.indexed-document-section {
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+    padding-left: 3rem;
+}
+section.indexed-document-section-1 {
+    margin-top: 1rem;
+    margin-bottom: 0rem;
+    padding-bottom: 1rem;
+    padding-left: 6rem;
+}
+div.indexed-page {
+    padding-left: 3rem;
+    line-height: 1.5em;
+}
+section.indexed-definitions {
+    padding-left: 4.5rem;
+}
+h2.indexed-section-name {
+}
+
+@media screen {
+    nav.indexed-bar li.index-bar-index span.index-bar-index-number:before {
+        content: "(";
+    }
+    nav.indexed-bar li.index-bar-index span.index-bar-index-number:after {
+        content: ")";
+    }
+}
+
+section.indexed-table {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    padding-left: 2em;
+    padding-right: 2em;
+}
+table.indexed-table {
+    border-spacing: 1em 0px;
+}
+table.indexed-table th {
+    text-align: left;
+}
+table.indexed-table th.indexed-table-heading-page {
+    text-align: right;
+}
+tr.indexed-table-headings th {
+    padding-bottom: 0.75em;
+}
+
+/* The indexed-table-link isn't needed any more, but might be something someone wants to style */
+table .indexed-table-link,
+table .indexed-table-heading-link {
+    display: none;
+}
+table .indexed-table-reason:before {
+    content: " ";
+}
+
+
+/* Styling specific to the print */
+@media print {
+
+    /* Change the bookmark text for the headings */
+    h1 {
+        prince-bookmark-level: none;
+    }
+    h1 .chapter-name {
+        prince-bookmark-level: 1;
+    }
+    h1 .chapter-name {
+        string-set: chapter-name content()
+    }
+
+    body.chapter h1 .chapter-name {
+        prince-bookmark-label: string(chapter-number-prefixed) " " content();
+    }
+
+    /* The cover has no bookmarks */
+    body.cover h2 {
+        prince-bookmark-level: none;
+    }
+    body.cover h1 {
+        prince-bookmark-level: none;
+    }
+    body.cover h3 {
+        prince-bookmark-level: none;
+    }
+
+    /* All the front-matter pages take their headings from the chapter name,
+       even though it's hidden */
+    body.front-matter h1 .chapter-name,
+    body.front-matter h2,
+    body.front-matter h3 {
+        prince-bookmark-level: none;
+    }
+    body.front-matter section.section:first-of-type {
+        prince-bookmark-level: 1;
+        prince-bookmark-label: string(chapter-name);
+    }
+    body.front-matter.front-matter-title section.section:first-of-type {
+        /* In the bookmark, we want to label it with Title, not the book title, as that'll look weird if there's a half-title */
+        prince-bookmark-label: "Title";
+    }
+    body.front-matter.front-matter-half-title section.section:first-of-type {
+        /* But we'll remove the half title anyhow */
+        prince-bookmark-level: none;
+    }
+
+    /* Avoid multiple dividers at the top of the page (the header bar + the definition border) */
+    .service-definition, .swi-definition, .vector-definition, .upcall-definition, .command-definition, .vdu-definition, .error-definition, .sysvar-definition, .message-definition, .tboxmessage-definition, .tboxmethod-definition, .entry-definition {
+        border-top: none;
+    }
+
+    /* The contents of the chapter makes little sense */
+    header nav {
+        display: none;
+    }
+
+    /* Add on the page that the reference exists on */
+    a[href]::after {
+        content: " (on page " target-counter(attr(href), page) ")";
+    }
+    a.reference-link[href]::after {
+        content: none;
+    }
+    a[href^="mailto:"]::after, a[href^="http:"]::after, a[href^="https:"]::after {
+        content: none;
+    }
+
+    /* Special style that's used on the contents pages */
+    body.indexed-contents a[href]::after {
+        content: "\A0\A0\A0" target-counter(attr(href), page);
+    }
+    body.indexed-contents .front-matter-link a[href]::after {
+        content: "";
+    }
+
+    /* Special style that's used on the index pages */
+    body.indexed-index .indexed-table-label a[href]::after {
+        content: "";
+    }
+    body.indexed-index .indexed-table-page a[href]::after {
+        content: target-counter(attr(href), page);
+    }
+
+
+    /* In the regular version these are a comma separated list;
+       instead make them one per line as they'll be longer and the links will be irrelevant */
+    .definition-related .reference {
+        display: block;
+    }
+    .definition-related-divider {
+        display: none;
+    }
+
+    /* Stop the border of the top of the sections being repeated on subsequent pages */
+    section {
+        box-decoration-break: slice;
+    }
+
+    /* The links on top of the contents page are not useful when printing */
+    nav.indexed-bar-top {
+        display: none;
+    }
+
+    /* The links on the bottom can be magiced into becoming a set of indexed links
+     * There's quite a bit of magic here, but it appears to work
+     */
+    nav.indexed-bar-bottom {
+        border-top: none !important;
+        padding-left: 6rem;
+    }
+    nav.indexed-bar-bottom ul {
+        display: block;
+        font-style: normal !important;
+        line-height: 1.5em;
+    }
+    nav.indexed-bar-bottom ul:before {
+        display: block;
+        content: "Indexes";
+        font-family: sans-serif;
+        font-size: 1.8rem;
+        padding-bottom: 0.83rem;
+    }
+    nav.indexed-bar-bottom ul li {
+        display: block;
+        padding-left: 3rem;
+        text-align: left;
+    }
+    nav.indexed-bar-bottom span.index-bar-contents {
+        display: none;
+    }
+    nav.indexed-bar-bottom li.index-bar-index span {
+        display: block;
+    }
+    nav.indexed-bar-bottom li.index-bar-index span.index-bar-index-number {
+        font-size: inherit;
+    }
+    nav.indexed-bar-bottom li.index-bar-index span.index-bar-index-number a:before {
+        content: "\a0\a0\a0\a0\a0...\0000a0by\a0";
+    }
+
+    /* Remove the bottom nav bar entirely on non-contents pages */
+    body.indexed-index nav.indexed-bar-bottom {
+        display: none;
+    }
+    body.indexed-index footer {
+        display: none;
+    }
+
+    .indexed-page-section {
+        clear: right;
+    }
+    .indexed-index a[href] {
+        display: inline-block;
+        width: 100%;
+    }
+    .indexed-contents a[href]::after,
+    .indexed-index a[href]::after {
+        font-style: italic;
+    }
+    .indexed-index a[href]::after {
+        clear: right;
+        float: right;
+        font-style: italic;
+    }
+
+    /* Hide the section as it's not as useful in the printed version */
+    .indexed-table-section, .indexed-table-heading-section {
+        display: none;
+    }
+
+    /* Cover pages go much closer to the edges */
+    @page cover {
+        margin: 1cm;
+        padding: 0;
+    }
+}
+
+@media screen {
+    /* Hide the page fields when shown on the screen */
+    .indexed-table-page, .indexed-table-heading-page {
+        display: none;
+    }
+}
+
+/* Paged media page breaks */
+.service-definition, .swi-definition, .vector-definition, .upcall-definition, .command-definition, .vdu-definition, .error-definition, .sysvar-definition, .message-definition, .tboxmessage-definition, .tboxmethod-definition, .entry-definition {
+    break-before: page;
+}
+section.section {
+    break-before: page;
+}
+section.section:first-of-type {
+    break-before: avoid;
+}
+section.section .service-definition:first-of-type,
+section.section .swi-definition:first-of-type,
+section.section .vector-definition:first-of-type,
+section.section .upcall-definition:first-of-type,
+section.section .command-definition:first-of-type,
+section.section .vdu-definition:first-of-type,
+section.section .error-definition:first-of-type,
+section.section .sysvar-definition:first-of-type,
+section.section .message-definition:first-of-type,
+section.section .tboxmessage-definition:first-of-type,
+section.section .tboxmethod-definition:first-of-type,
+section.section .entry-definition:first-of-type {
+    break-before: avoid;
+}
+
+
+/* Usually the section is immediately followed by a definition block,
+ * but when they include a descriptive paragraph before those blocks
+ * we want to force to a new page.
+ */
+section.section p + .service-definition:first-of-type,
+section.section p + .swi-definition:first-of-type,
+section.section p + .vector-definition:first-of-type,
+section.section p + .upcall-definition:first-of-type,
+section.section p + .command-definition:first-of-type,
+section.section p + .vdu-definition:first-of-type,
+section.section p + .error-definition:first-of-type,
+section.section p + .sysvar-definition:first-of-type,
+section.section p + .message-definition:first-of-type,
+section.section p + .tboxmessage-definition:first-of-type,
+section.section p + .tboxmethod-definition:first-of-type,
+section.section p + .entry-definition:first-of-type {
+    break-before: page;
+}
+
+/* If we have a heading which is followed by content, we would like to keep that content
+   together with the heading. This appears to be effective in PrinceXML but not in
+   Firefox or Chrome; maybe something subtle I've missed. */
+section.section > h2,
+section.subsection > h3,
+section.subsubsection > h4 {
+    page-break-after: avoid;
+}
+section.section > h2 + *,
+section.subsection > h3 + *,
+section.subsubsection > h4 + * {
+    page-break-before: avoid;
+}
+
+section.meta h2 {
+    break-before: page;
+}
+
+section.definition {
+    page-break-inside: avoid;
+}
+
+/* The 'Use' block is large, so making it always break tends to lead to the Use
+   section being on the next page. So instead of keeping all the 'Use' block together,
+   we instead try to keep the first paragraph with the section header. */
+section.definition.definition-use {
+    page-break-inside: auto;
+}
+section.definition.definition-use > p:first-of-type {
+    break-before: avoid;
+    page-break-inside: avoid;
+}
+
+footer {
+    page-break-inside: avoid;
+}
+
+
+.indexed-table-field { string-set: indexed-field content() }
+.chapter-docgroup-name { string-set: docgroup-name content() }
+.chapter-docgroup-part { string-set: docgroup-part content() }
+.chapter-name { string-set: chapter-name content() }
+.chapter-number {
+    string-set: chapter-number content(),
+                chapter-number-prefixed "Chapter " content() " ";
+}
+/* If the chapter-number wasn't given, then we make 'chapter-number-prefixed'
+ * an empty string. This means that it can be used as the PDF bookmark label
+ * with a prefix (eg 'Chapter 5 ') which makes it easier to look through the
+ * TOC to find the right chapter.
+ */
+.chapter-number:empty {
+    string-set: chapter-number-prefixed "";
+}
+.chapter-page-prefix { string-set: chapter-page-prefix content() }
+section.section h2,
+section.meta h2 {
+    string-set: section-name content()
+}
+
+
+</style></head><body class="chapter"><header><span class="chapter-vars"><span class="chapter-page-prefix"></span><style type="text/css">:root {  --edgeindex-number: 0;  --edgeindex-max: 4;</style></span><h1 class="chapter-title" id="chapter_options_module"><span class="chapter-docgroup-name"></span><span class="chapter-docgroup-part"></span><span class="chapter-number"></span><span class="chapter-name">Options module</span></h1><nav><h2 class="contents">Contents</h2><ul><li><a href="#section_introduction_and_overview">Introduction and Overview</a></li><li><a href="#section_technical_details">Technical details</a><ul><li><a href="#subsection_user_interface">User interface</a></li><li><a href="#subsection_programmer_interface">Programmer interface</a></li><li><a href="#subsection_data_formats">Data formats</a></li><li><a href="#subsection_external_dependencies">External dependencies</a></li></ul></li><li><a href="#section_swi_calls">SWI calls</a><ul><li><a href="#swi_options_openfile">SWI Options_OpenFile</a></li><li><a href="#swi_options_closefile">SWI Options_CloseFile</a></li><li><a href="#swi_options_readgroup">SWI Options_ReadGroup</a></li><li><a href="#swi_options_writegroup">SWI Options_WriteGroup</a></li><li><a href="#swi_options_readvalue">SWI Options_ReadValue</a></li><li><a href="#swi_options_writevalue">SWI Options_WriteValue</a></li><li><a href="#swi_options_deletevalue">SWI Options_DeleteValue</a></li><li><a href="#swi_options_readboolean">SWI Options_ReadBoolean</a></li><li><a href="#swi_options_readenum">SWI Options_ReadEnum</a></li></ul></li><li><a href="#section_testing_scheme">Testing scheme</a><ul><li><a href="#subsection_acceptance_test">Acceptance test</a></li><li><a href="#subsection_test_strategy">Test strategy</a></li></ul></li><li><a href="#section_noncompliance">Non-compliance</a></li><li><a href="#section_outstanding_issues">Outstanding issues</a></li></ul></nav></header><article><section class="section"><h2 class="section" id="section_introduction_and_overview">Introduction and Overview</h2><p>
+Usage of the <span class="filename filename-riscos">Choices:</span> structure has historically been
+disorganised, with each application author selecting their own particular way of storing
+options. Many applications fail to use the
+<a class="reference reference-link" href="http://www.thevillage.ndirect.co.uk/justin/info/choices.html#link_correct">correct</a>
+way of accessing the <span class="filename filename-riscos">Choices:</span> structure, and some still use
+files kept in their own private directory structure.
+</p><p>
+This suggests the need for a central module to maintain configuration options for
+applications. The files it controls are textual, so as to allow the user to fix problems by
+hand if necessary.
+</p><p>
+This module provides:
+</p><p>
+<ul class="list list-unordered">
+ <li>A means of reading options files, either from
+ <span class="filename filename-riscos">Choices:</span> or an arbitrary location</li>
+ <li>A means of writing options files, to the correct part of
+ <span class="filename filename-riscos">Choices:</span> or to the original location</li>
+ <li>A means of collating related items within a file into 'groups'</li>
+</ul>
+</p></section><section class="section"><h2 class="section" id="section_technical_details">Technical details</h2><section class="subsection"><h3 class="subsection" id="subsection_user_interface">User interface</h3><p>
+There is no user interface provided by this module.
+</p></section><section class="subsection"><h3 class="subsection" id="subsection_programmer_interface">Programmer interface</h3><p>
+The programmer interface is incomplete and may change without notice.
+</p></section><section class="subsection"><h3 class="subsection" id="subsection_data_formats">Data formats</h3><p>
+Options files are standard RISC OS text files. Any whitespace (space or tab) at the
+beginning or end of a line is ignored. Any line where the first non-whitespace character
+is <span class="userinput">#</span> is a comment line and is ignored, as is any line consisting only
+of whitespace.
+</p><p>
+The file consists of a series of groups, delimited by group name specifiers. A group name
+specifier starts with <span class="userinput">[</span>, followed by the name (which may contain
+spaces), followed by <span class="userinput">]</span>.
+</p><p>
+The groups themselves are in one of two formats (although further formats may be added in
+future):
+</p><p>
+<ul class="list list-unordered">
+ <li>The <em>list format</em> is a simple list of newline-terminated strings.</li>
+ <li>The <em>options format</em> consists of tag, value pairs in the form
+ <span class="userinput">&lt;spaces&gt;tag name&lt;spaces&gt;:&lt;spaces&gt;value&lt;spaces&gt;</span>,
+ where <span class="userinput">&lt;spaces&gt;</span> is zero or more spaces or tabs.</li>
+</ul>
+</p><p>
+Items at the start of a file, before any group is declared, are deemed to be in the group
+<span class="userinput">$</span>. Group names are case insensitive, as are tag entries.
+</p><p>
+<pre class="extended-example extended-example-format">
+An example options file for an application called "widget"
+<br><br>
+# choices file for widget
+
+[auto load]
+# a list of files to load when starting widget
+ADFS::4.$.afile
+ADFS::4.$.somedir.anotherfile
+ADFS::4.$.thingy
+
+[misc options]
+somevalue    : 42
+window width : 332
+auto open    : Yes
+</pre>
+</p><p>
+When a group is read with <a class="reference reference-swi" href="#swi_options_readgroup">SWI Options_ReadGroup</a> or written with
+<a class="reference reference-swi" href="#swi_options_writegroup">SWI Options_WriteGroup</a>, its content is passed as a block of
+memory in one of two layouts, matching the group format.
+</p><p>
+For an options group, the block holds a series of tag/value pointer pairs, terminated by a
+null pair:
+</p><table class="user-table offset-table"><thead class="table-head"><tr><th class="table-number">Offset</th><th class="table-data-size">Size</th><th class="table-name">Name</th><th class="table-value">Contents</th></tr></thead><tbody class="table-body">
+ <tr><td class="table-number">0</td><td class="table-data-size">4</td><td class="table-name">tag</td><td class="table-value">Pointer to tag 0</td></tr>
+ <tr><td class="table-number">4</td><td class="table-data-size">4</td><td class="table-name">value</td><td class="table-value">Pointer to value 0, or NULL if no value is set
+ (for example in list groups)</td></tr>
+ <tr><td class="table-number">x</td><td class="table-data-size"></td><td class="table-name"></td><td class="table-value">Repeated tag/value pointer pairs</td></tr>
+ <tr><td class="table-number">x</td><td class="table-data-size">4</td><td class="table-name">tag</td><td class="table-value">0</td></tr>
+ <tr><td class="table-number">x+4</td><td class="table-data-size">4</td><td class="table-name">value</td><td class="table-value">0</td></tr>
+</tbody></table><p>
+For a list format group, the buffer is filled with a series of null-terminated strings
+immediately following one another.
+</p></section><section class="subsection"><h3 class="subsection" id="subsection_external_dependencies">External dependencies</h3><p>
+This specification has no external dependencies.
+</p></section></section><section class="section"><h2 class="section" id="section_swi_calls">SWI calls</h2><p>
+This module allocates the <span class="userinput">Options_</span> SWI chunk at &amp;52F80.
+</p><section class="swi-definition" id="swi_options_openfile"><div class="definition-header" data-label="Options_OpenFile"><span class="definition-title"><span class="definition-name">Options_OpenFile</span></span><span class="definition-subtitle"><span class="definition-number-prefix">SWI </span><span class="definition-number"> &amp;52F80</span></span></div><div class="definition-description">Open an options file</div><section class="definition definition-entry"><table>
+ <tr><td class="register-use-register"><span class="register-name">R0</span></td><td class="register-use-divider">=</td><td class="register-use-value">Flags:
+  <table class="user-table bitfield-table"><thead class="table-head"><tr><th class="table-number">Bit(s)</th><th class="table-name">Name</th><th class="table-value" colspan="2">Meaning</th></tr></thead><tbody class="table-body">
+   <tr><td class="table-number">0-1</td><td class="table-name">Method of accessing file</td><td class="table-value" colspan="2">
+    <table class="user-table value-table"><thead class="table-head"><tr><th class="table-number">Value</th><th class="table-value">Meaning</th></tr></thead><tbody class="table-body">
+     <tr><td class="table-number">0</td><td class="table-value">R1 contains an absolute filename</td></tr>
+     <tr><td class="table-number">1</td><td class="table-value">R1 contains the leafname, R2 contains the application name, and R3
+     contains another directory name to use if <span class="filename filename-riscos">Choices:</span>
+     is not present, or the <span class="filename filename-riscos">Choices:</span> file is not
+     present</td></tr>
+     <tr><td class="table-number">2-3</td><td class="table-value">Reserved</td></tr>
+    </tbody></table>
+   </td></tr>
+   <tr><td class="table-number">2-31</td><td class="table-name"></td><td class="table-value" colspan="2"><span class="state state-reserved">Reserved, must be zero</span></td></tr>
+  </tbody></table>
+ </td></tr>
+ <tr><td class="register-use-register"><span class="register-name">R1</span></td><td class="register-use-divider">=</td><td class="register-use-value">Pointer to filename, or leafname</td></tr>
+ <tr><td class="register-use-register"><span class="register-name">R2</span></td><td class="register-use-divider">=</td><td class="register-use-value">Pointer to application name</td></tr>
+ <tr><td class="register-use-register"><span class="register-name">R3</span></td><td class="register-use-divider">=</td><td class="register-use-value">Pointer to directory to use</td></tr>
+</table></section><section class="definition definition-exit"><table>
+ <tr><td class="register-use-register"><span class="register-name">R0</span></td><td class="register-use-divider">=</td><td class="register-use-value">Opaque options handle</td></tr>
+</table></section><section class="definition definition-interrupts"><div class="definition-interrupts-irqs">
+    Interrupts are undefined</div><div class="definition-interrupts-fiqs">
+      Fast interrupts are undefined</div></section><section class="definition definition-processor"><div class="definition-processor-mode">
+    Processor is in undefined mode
+    </div></section><section class="definition definition-reentrancy"><div class="definition-reentrancy-mode">Not defined</div></section><section class="definition definition-use">
+<p>
+This SWI is used to open a specific file, or a <span class="filename filename-riscos">Choices:</span>
+file, for access. When opening a specific file (type 0), only that file is written to and
+read from.
+</p>
+<p>
+When opening a <span class="filename filename-riscos">Choices:</span> file (type 1), the file read
+comes from <span class="filename filename-riscos">Choices:&lt;application&gt;.&lt;leafname&gt;</span>
+if that is present, or if not, from
+<span class="filename filename-riscos">&lt;directory&gt;.&lt;leafname&gt;</span>. This provides
+compatibility for applications written for older systems. When writing, data is written to
+<span class="filename filename-riscos">&lt;Choices$Write&gt;.&lt;application&gt;.&lt;leafname&gt;</span>
+unless the <span class="filename filename-riscos">Choices:</span> structure is not present, in which
+case it is written to <span class="filename filename-riscos">&lt;directory&gt;.&lt;leafname&gt;</span>.
+</p>
+</section><div class="definition-related"><section class="definition definition-related-swis"><a class="reference reference-swi" href="#swi_options_closefile">SWI Options_CloseFile</a></section></div></section><section class="swi-definition" id="swi_options_closefile"><div class="definition-header" data-label="Options_CloseFile"><span class="definition-title"><span class="definition-name">Options_CloseFile</span></span><span class="definition-subtitle"><span class="definition-number-prefix">SWI </span><span class="definition-number"> &amp;52F81</span></span></div><div class="definition-description">Close a file, writing out any changes that are pending</div><section class="definition definition-entry"><table>
+ <tr><td class="register-use-register"><span class="register-name">R0</span></td><td class="register-use-divider">=</td><td class="register-use-value">Opaque file handle</td></tr>
+</table></section><section class="definition definition-exit"><span class="definition-exit-none">None</span></section><section class="definition definition-interrupts"><div class="definition-interrupts-irqs">
+    Interrupts are undefined</div><div class="definition-interrupts-fiqs">
+      Fast interrupts are undefined</div></section><section class="definition definition-processor"><div class="definition-processor-mode">
+    Processor is in undefined mode
+    </div></section><section class="definition definition-reentrancy"><div class="definition-reentrancy-mode">Not defined</div></section><section class="definition definition-use">
+<p>
+This SWI is used to close an Options file session. Any changes are written out to the
+relevant file. An error may be produced if the options file could not be written.
+</p>
+</section><div class="definition-related"><section class="definition definition-related-swis"><a class="reference reference-swi" href="#swi_options_openfile">SWI Options_OpenFile</a></section></div></section><section class="swi-definition" id="swi_options_readgroup"><div class="definition-header" data-label="Options_ReadGroup"><span class="definition-title"><span class="definition-name">Options_ReadGroup</span></span><span class="definition-subtitle"><span class="definition-number-prefix">SWI </span><span class="definition-number"> &amp;52F82</span></span></div><div class="definition-description">Reads in a group description block to produce a value/tag array</div><section class="definition definition-entry"><table>
+ <tr><td class="register-use-register"><span class="register-name">R0</span></td><td class="register-use-divider">=</td><td class="register-use-value">Opaque file handle</td></tr>
+ <tr><td class="register-use-register"><span class="register-name">R1</span></td><td class="register-use-divider">=</td><td class="register-use-value">Pointer to group name</td></tr>
+ <tr><td class="register-use-register"><span class="register-name">R2</span></td><td class="register-use-divider">=</td><td class="register-use-value">Flags:
+  <table class="user-table bitfield-table"><thead class="table-head"><tr><th class="table-number">Bit(s)</th><th class="table-name">Name</th><th class="table-value" colspan="2">Meaning</th></tr></thead><tbody class="table-body">
+   <tr><td class="table-number">0-7</td><td class="table-name">Group type</td><td class="table-value" colspan="2">
+    <table class="user-table value-table"><thead class="table-head"><tr><th class="table-number">Value</th><th class="table-value">Meaning</th></tr></thead><tbody class="table-body">
+     <tr><td class="table-number">0</td><td class="table-value">Options format</td></tr>
+     <tr><td class="table-number">1</td><td class="table-value">List format</td></tr>
+    </tbody></table>
+    Other values are reserved.
+   </td></tr>
+   <tr><td class="table-number">8-31</td><td class="table-name"></td><td class="table-value" colspan="2"><span class="state state-reserved">Reserved, must be zero</span></td></tr>
+  </tbody></table>
+ </td></tr>
+ <tr><td class="register-use-register"><span class="register-name">R3</span></td><td class="register-use-divider">=</td><td class="register-use-value">Pointer to buffer</td></tr>
+ <tr><td class="register-use-register"><span class="register-name">R4</span></td><td class="register-use-divider">=</td><td class="register-use-value">Length of buffer, or negative to return the size of buffer
+ needed</td></tr>
+</table></section><section class="definition definition-exit"><table>
+ <tr><td class="register-use-register"><span class="register-name">R0</span></td><td class="register-use-divider">=</td><td class="register-use-value">Size of data written, or negative size of buffer needed</td></tr>
+</table></section><section class="definition definition-interrupts"><div class="definition-interrupts-irqs">
+    Interrupts are undefined</div><div class="definition-interrupts-fiqs">
+      Fast interrupts are undefined</div></section><section class="definition definition-processor"><div class="definition-processor-mode">
+    Processor is in undefined mode
+    </div></section><section class="definition definition-reentrancy"><div class="definition-reentrancy-mode">Not defined</div></section><section class="definition definition-use">
+<p>
+This SWI is used to read a group structure into a block of memory. The block is in one of
+the two formats described in Data formats, depending on the group type requested.
+</p>
+</section><div class="definition-related"><section class="definition definition-related-swis"><a class="reference reference-swi" href="#swi_options_writegroup">SWI Options_WriteGroup</a></section></div></section><section class="swi-definition" id="swi_options_writegroup"><div class="definition-header" data-label="Options_WriteGroup"><span class="definition-title"><span class="definition-name">Options_WriteGroup</span></span><span class="definition-subtitle"><span class="definition-number-prefix">SWI </span><span class="definition-number"> &amp;52F83</span></span></div><div class="definition-description">Writes a group description block to the options file</div><section class="definition definition-entry"><table>
+ <tr><td class="register-use-register"><span class="register-name">R0</span></td><td class="register-use-divider">=</td><td class="register-use-value">Opaque file handle</td></tr>
+ <tr><td class="register-use-register"><span class="register-name">R1</span></td><td class="register-use-divider">=</td><td class="register-use-value">Pointer to group name</td></tr>
+ <tr><td class="register-use-register"><span class="register-name">R2</span></td><td class="register-use-divider">=</td><td class="register-use-value">Flags:
+  <table class="user-table bitfield-table"><thead class="table-head"><tr><th class="table-number">Bit(s)</th><th class="table-name">Name</th><th class="table-value" colspan="2">Meaning</th></tr></thead><tbody class="table-body">
+   <tr><td class="table-number">0-7</td><td class="table-name">Group type</td><td class="table-value" colspan="2">
+    <table class="user-table value-table"><thead class="table-head"><tr><th class="table-number">Value</th><th class="table-value">Meaning</th></tr></thead><tbody class="table-body">
+     <tr><td class="table-number">0</td><td class="table-value">Options format</td></tr>
+     <tr><td class="table-number">1</td><td class="table-value">List format</td></tr>
+    </tbody></table>
+    Other values are reserved.
+   </td></tr>
+   <tr><td class="table-number">8-31</td><td class="table-name"></td><td class="table-value" colspan="2"><span class="state state-reserved">Reserved, must be zero</span></td></tr>
+  </tbody></table>
+ </td></tr>
+ <tr><td class="register-use-register"><span class="register-name">R3</span></td><td class="register-use-divider">=</td><td class="register-use-value">Pointer to buffer</td></tr>
+</table></section><section class="definition definition-exit"><span class="definition-exit-none">None</span></section><section class="definition definition-interrupts"><div class="definition-interrupts-irqs">
+    Interrupts are undefined</div><div class="definition-interrupts-fiqs">
+      Fast interrupts are undefined</div></section><section class="definition definition-processor"><div class="definition-processor-mode">
+    Processor is in undefined mode
+    </div></section><section class="definition definition-reentrancy"><div class="definition-reentrancy-mode">Not defined</div></section><section class="definition definition-use">
+<p>
+This SWI is used to write data from a description block to a file. The contents of the
+buffer should be in the same format as for <a class="reference reference-swi" href="#swi_options_readgroup">SWI Options_ReadGroup</a>.
+The group type must match that of the group being written to, otherwise an error is
+generated.
+</p>
+</section><div class="definition-related"><section class="definition definition-related-swis"><a class="reference reference-swi" href="#swi_options_readgroup">SWI Options_ReadGroup</a></section></div></section><section class="swi-definition" id="swi_options_readvalue"><div class="definition-header" data-label="Options_ReadValue"><span class="definition-title"><span class="definition-name">Options_ReadValue</span></span><span class="definition-subtitle"><span class="definition-number-prefix">SWI </span><span class="definition-number"> &amp;52F84</span></span></div><div class="definition-description">Reads the value of a single options tag</div><section class="definition definition-entry"><table>
+ <tr><td class="register-use-register"><span class="register-name">R0</span></td><td class="register-use-divider">=</td><td class="register-use-value">Opaque file handle</td></tr>
+ <tr><td class="register-use-register"><span class="register-name">R1</span></td><td class="register-use-divider">=</td><td class="register-use-value">Pointer to group name</td></tr>
+ <tr><td class="register-use-register"><span class="register-name">R2</span></td><td class="register-use-divider">=</td><td class="register-use-value">Flags:
+  <table class="user-table bitfield-table"><thead class="table-head"><tr><th class="table-number">Bit(s)</th><th class="table-name">Name</th><th class="table-value" colspan="2">Meaning</th></tr></thead><tbody class="table-body">
+   <tr><td class="table-number">0-7</td><td class="table-name">Group type</td><td class="table-value" colspan="2">
+    <table class="user-table value-table"><thead class="table-head"><tr><th class="table-number">Value</th><th class="table-value">Meaning</th></tr></thead><tbody class="table-body">
+     <tr><td class="table-number">0</td><td class="table-value">Options format</td></tr>
+     <tr><td class="table-number">1</td><td class="table-value">List format</td></tr>
+    </tbody></table>
+    Other values are reserved.
+   </td></tr>
+   <tr><td class="table-number">8-31</td><td class="table-name"></td><td class="table-value" colspan="2"><span class="state state-reserved">Reserved, must be zero</span></td></tr>
+  </tbody></table>
+ </td></tr>
+ <tr><td class="register-use-register"><span class="register-name">R3</span></td><td class="register-use-divider">=</td><td class="register-use-value">Pointer to tag name</td></tr>
+</table></section><section class="definition definition-exit"><table>
+ <tr><td class="register-use-register"><span class="register-name">R0</span></td><td class="register-use-divider">=</td><td class="register-use-value">Pointer to a null terminated string containing the value for the
+ tag</td></tr>
+</table></section><section class="definition definition-interrupts"><div class="definition-interrupts-irqs">
+    Interrupts are undefined</div><div class="definition-interrupts-fiqs">
+      Fast interrupts are undefined</div></section><section class="definition definition-processor"><div class="definition-processor-mode">
+    Processor is in undefined mode
+    </div></section><section class="definition definition-reentrancy"><div class="definition-reentrancy-mode">Not defined</div></section><section class="definition definition-use">
+<p>
+This SWI is used to read the value of a single option. The returned string should be
+considered read only.
+</p>
+</section><div class="definition-related"><section class="definition definition-related-swis"><a class="reference reference-swi" href="#swi_options_writevalue">SWI Options_WriteValue</a></section></div></section><section class="swi-definition" id="swi_options_writevalue"><div class="definition-header" data-label="Options_WriteValue"><span class="definition-title"><span class="definition-name">Options_WriteValue</span></span><span class="definition-subtitle"><span class="definition-number-prefix">SWI </span><span class="definition-number"> &amp;52F85</span></span></div><div class="definition-description">Writes the value of a single options tag</div><section class="definition definition-entry"><table>
+ <tr><td class="register-use-register"><span class="register-name">R0</span></td><td class="register-use-divider">=</td><td class="register-use-value">Opaque file handle</td></tr>
+ <tr><td class="register-use-register"><span class="register-name">R1</span></td><td class="register-use-divider">=</td><td class="register-use-value">Pointer to group name</td></tr>
+ <tr><td class="register-use-register"><span class="register-name">R2</span></td><td class="register-use-divider">=</td><td class="register-use-value">Flags:
+  <table class="user-table bitfield-table"><thead class="table-head"><tr><th class="table-number">Bit(s)</th><th class="table-name">Name</th><th class="table-value" colspan="2">Meaning</th></tr></thead><tbody class="table-body">
+   <tr><td class="table-number">0-7</td><td class="table-name">Group type</td><td class="table-value" colspan="2">
+    <table class="user-table value-table"><thead class="table-head"><tr><th class="table-number">Value</th><th class="table-value">Meaning</th></tr></thead><tbody class="table-body">
+     <tr><td class="table-number">0</td><td class="table-value">Options format</td></tr>
+     <tr><td class="table-number">1</td><td class="table-value">List format</td></tr>
+    </tbody></table>
+    Other values are reserved.
+   </td></tr>
+   <tr><td class="table-number">8-31</td><td class="table-name"></td><td class="table-value" colspan="2"><span class="state state-reserved">Reserved, must be zero</span></td></tr>
+  </tbody></table>
+ </td></tr>
+ <tr><td class="register-use-register"><span class="register-name">R3</span></td><td class="register-use-divider">=</td><td class="register-use-value">Pointer to tag name, or line number for list format</td></tr>
+ <tr><td class="register-use-register"><span class="register-name">R4</span></td><td class="register-use-divider">=</td><td class="register-use-value">Pointer to tag value</td></tr>
+</table></section><section class="definition definition-exit"><span class="definition-exit-none">None</span></section><section class="definition definition-interrupts"><div class="definition-interrupts-irqs">
+    Interrupts are undefined</div><div class="definition-interrupts-fiqs">
+      Fast interrupts are undefined</div></section><section class="definition definition-processor"><div class="definition-processor-mode">
+    Processor is in undefined mode
+    </div></section><section class="definition definition-reentrancy"><div class="definition-reentrancy-mode">Not defined</div></section><section class="definition definition-use">
+<p>
+This SWI is used to write the value of a single option.
+</p>
+</section><div class="definition-related"><section class="definition definition-related-swis"><a class="reference reference-swi" href="#swi_options_readvalue">SWI Options_ReadValue</a><span class="definition-related-divider">, </span><a class="reference reference-swi" href="#swi_options_deletevalue">SWI Options_DeleteValue</a></section></div></section><section class="swi-definition" id="swi_options_deletevalue"><div class="definition-header" data-label="Options_DeleteValue"><span class="definition-title"><span class="definition-name">Options_DeleteValue</span></span><span class="definition-subtitle"><span class="definition-number-prefix">SWI </span><span class="definition-number"> &amp;52F86</span></span></div><div class="definition-description">Removes an option from a group</div><section class="definition definition-entry"><table>
+ <tr><td class="register-use-register"><span class="register-name">R0</span></td><td class="register-use-divider">=</td><td class="register-use-value">Opaque file handle</td></tr>
+ <tr><td class="register-use-register"><span class="register-name">R1</span></td><td class="register-use-divider">=</td><td class="register-use-value">Pointer to group name</td></tr>
+ <tr><td class="register-use-register"><span class="register-name">R2</span></td><td class="register-use-divider">=</td><td class="register-use-value">Flags:
+  <table class="user-table bitfield-table"><thead class="table-head"><tr><th class="table-number">Bit(s)</th><th class="table-name">Name</th><th class="table-value" colspan="2">Meaning</th></tr></thead><tbody class="table-body">
+   <tr><td class="table-number">0-7</td><td class="table-name">Group type</td><td class="table-value" colspan="2">
+    <table class="user-table value-table"><thead class="table-head"><tr><th class="table-number">Value</th><th class="table-value">Meaning</th></tr></thead><tbody class="table-body">
+     <tr><td class="table-number">0</td><td class="table-value">Options format</td></tr>
+     <tr><td class="table-number">1</td><td class="table-value">List format</td></tr>
+    </tbody></table>
+    Other values are reserved.
+   </td></tr>
+   <tr><td class="table-number">8-31</td><td class="table-name"></td><td class="table-value" colspan="2"><span class="state state-reserved">Reserved, must be zero</span></td></tr>
+  </tbody></table>
+ </td></tr>
+ <tr><td class="register-use-register"><span class="register-name">R3</span></td><td class="register-use-divider">=</td><td class="register-use-value">Pointer to tag name, or line number for list format</td></tr>
+</table></section><section class="definition definition-exit"><span class="definition-exit-none">None</span></section><section class="definition definition-interrupts"><div class="definition-interrupts-irqs">
+    Interrupts are undefined</div><div class="definition-interrupts-fiqs">
+      Fast interrupts are undefined</div></section><section class="definition definition-processor"><div class="definition-processor-mode">
+    Processor is in undefined mode
+    </div></section><section class="definition definition-reentrancy"><div class="definition-reentrancy-mode">Not defined</div></section><section class="definition definition-use">
+<p>
+This SWI is used to remove a single option.
+</p>
+</section><div class="definition-related"><section class="definition definition-related-swis"><a class="reference reference-swi" href="#swi_options_writevalue">SWI Options_WriteValue</a></section></div></section><section class="swi-definition" id="swi_options_readboolean"><div class="definition-header" data-label="Options_ReadBoolean"><span class="definition-title"><span class="definition-name">Options_ReadBoolean</span></span><span class="definition-subtitle"><span class="definition-number-prefix">SWI </span><span class="definition-number"> &amp;52F87</span></span></div><div class="definition-description">Converts a string into a boolean value</div><section class="definition definition-entry"><table>
+ <tr><td class="register-use-register"><span class="register-name">R0</span></td><td class="register-use-divider">=</td><td class="register-use-value">Pointer to a string</td></tr>
+</table></section><section class="definition definition-exit"><span class="definition-exit-none">None</span></section><section class="definition definition-interrupts"><div class="definition-interrupts-irqs">
+    Interrupts are undefined</div><div class="definition-interrupts-fiqs">
+      Fast interrupts are undefined</div></section><section class="definition definition-processor"><div class="definition-processor-mode">
+    Processor is in undefined mode
+    </div></section><section class="definition definition-reentrancy"><div class="definition-reentrancy-mode">Not defined</div></section><section class="definition definition-use">
+<p>
+This SWI converts a string into a boolean value.
+</p>
+<p>
+The strings are converted as follows, ignoring case: <span class="userinput">true</span>,
+<span class="userinput">yes</span>, <span class="userinput">on</span>, and <span class="userinput">1</span> are
+converted to TRUE (1). The strings <span class="userinput">0</span>, <span class="userinput">no</span>,
+<span class="userinput">off</span>, and <span class="userinput">false</span> are converted to FALSE (0).
+</p>
+</section></section><section class="swi-definition" id="swi_options_readenum"><div class="definition-header" data-label="Options_ReadEnum"><span class="definition-title"><span class="definition-name">Options_ReadEnum</span></span><span class="definition-subtitle"><span class="definition-number-prefix">SWI </span><span class="definition-number"> &amp;52F88</span></span></div><div class="definition-description">Converts a string into an integer value</div><section class="definition definition-entry"><table>
+ <tr><td class="register-use-register"><span class="register-name">R0</span></td><td class="register-use-divider">=</td><td class="register-use-value">Pointer to a string</td></tr>
+ <tr><td class="register-use-register"><span class="register-name">R1</span></td><td class="register-use-divider">=</td><td class="register-use-value">Pointer to a comma separated list of strings</td></tr>
+</table></section><section class="definition definition-exit"><table>
+ <tr><td class="register-use-register"><span class="register-name">R0</span></td><td class="register-use-divider">=</td><td class="register-use-value">The index into the array that matches the given string, or -1 if
+ it does not match any of them</td></tr>
+</table></section><section class="definition definition-interrupts"><div class="definition-interrupts-irqs">
+    Interrupts are undefined</div><div class="definition-interrupts-fiqs">
+      Fast interrupts are undefined</div></section><section class="definition definition-processor"><div class="definition-processor-mode">
+    Processor is in undefined mode
+    </div></section><section class="definition definition-reentrancy"><div class="definition-reentrancy-mode">Not defined</div></section><section class="definition definition-use">
+<p>
+This SWI converts a string into an index value. The string being matched can contain any
+character except control characters and a comma. The strings are matched case
+insensitively.
+</p>
+</section></section></section><section class="section"><h2 class="section" id="section_testing_scheme">Testing scheme</h2><section class="subsection"><h3 class="subsection" id="subsection_acceptance_test">Acceptance test</h3><p>
+The options file parser must be capable of coping with very malformed files. Users, and
+programmers, will edit the files by hand and often get that wrong. At worst the program
+should fail to read a few options, but even in the worst cases the vast majority of the
+file should be able to be read.
+</p><p>
+The layout of option files must be preserved, as it will be laid out in such a way as to
+make it easier for the human reader. So, any whitespace must remain in the file after it is
+modified, as should any comments. If no changes are made to the options then the file
+written out should be identical to the file read in.
+</p><p>
+Transition to the Options system should be as painless as possible for both programmers
+and users.
+</p></section><section class="subsection"><h3 class="subsection" id="subsection_test_strategy">Test strategy</h3><p>
+The Options module should be tested by a number of programmers, in their own applications,
+as well as in some of the OS components.
+</p></section></section><section class="section"><h2 class="section" id="section_noncompliance">Non-compliance</h2><p>
+<span class="fixme"><span class="fixme-label">FIXME: </span><span class="fixme-content">This section has not been written.</span></span>
+</p></section><section class="section"><h2 class="section" id="section_outstanding_issues">Outstanding issues</h2><p>
+The implementation of the read and write single value SWIs has to be worked on, but the
+whole file could be parsed when it is first opened. That way the values would already be
+in memory, so direct pointers could be returned.
+</p></section></article></body>
+
+
+
+<footer><section class="meta"><h2 id="metadata">Document information</h2><div class="meta"><table><tr class="maintainer"><th>Maintainer(s):</th><td class="maintainers">
+  <span class="email"><span class="email-name">Charles Ferguson</span> &lt;<span class="email-address"><a href="mailto:gerph@gerph.org">gerph@gerph.org</a></span>&gt;</span>
+ </td></tr><tr class="history"><th>History:</th><td class="history"><table class="history"><tr><th class="revision-number">Revision</th><th class="revision-date">Date</th><th class="revision-author">Author</th><th class="revision-detail">Changes</th></tr>
+  <tr><td class="revision-number">1</td><td class="revision-date">14 Jan 1999</td><td class="revision-author">JF</td><td class="revision-detail"><h5 class="revision-title">Draft</h5><ul class="revision-changes">
+   <li class="revision-change">Private draft, from an email conversation with MB.</li>
+  </ul></td></tr>
+  <tr><td class="revision-number">2</td><td class="revision-date">16 Jan 1999</td><td class="revision-author">MB</td><td class="revision-detail"><h5 class="revision-title">Issue 1</h5><ul class="revision-changes">
+   <li class="revision-change">Finalised the SWI specification and added the file format.</li>
+  </ul></td></tr>
+  <tr><td class="revision-number">3</td><td class="revision-date">15 Apr 1999</td><td class="revision-author">JF</td><td class="revision-detail"><h5 class="revision-title">Issue 1 revision 3</h5><ul class="revision-changes">
+   <li class="revision-change">Added SWI chunk allocation and began updating documentation to match the actual
+   implementation.</li>
+  </ul></td></tr>
+  <tr><td class="revision-number">4</td><td class="revision-date">17 Jan 2000</td><td class="revision-author">JF</td><td class="revision-detail"><h5 class="revision-title">Issue 1 revision 4</h5><ul class="revision-changes">
+   <li class="revision-change">Miscellaneous changes to tidy up for the developer CD.</li>
+  </ul></td></tr>
+  <tr><td class="revision-number">5</td><td class="revision-date">18 Jan 2000</td><td class="revision-author">JF</td><td class="revision-detail"><h5 class="revision-title">Issue 1 revision 5</h5><ul class="revision-changes">
+   <li class="revision-change">Updates for implementation. Options_ReadEnum is now a comma separated list, rather
+   than a null separated list, as the latter is a pain to use from BASIC.</li>
+  </ul></td></tr>
+  <tr><td class="revision-number">6</td><td class="revision-date">25 Jul 2026</td><td class="revision-author">Charles Ferguson</td><td class="revision-detail"><h5 class="revision-title">PRM-in-XML conversion</h5><ul class="revision-changes">
+   <li class="revision-change">Converted the specification from HTML into PRM-in-XML format, retaining the
+   original document history and content.</li>
+  </ul></td></tr>
+ </table></td></tr><tr><th class="related">Related:</th><td class="related"><div class="meta-reference"><a class="reference reference-link" href="http://www.riscos.com/#link_riscos_ltd">RISCOS Ltd</a></div></td></tr><tr class="disclaimer"><th>Disclaimer:</th><td class="disclaimer">
+  <p>
+  © RISCOS Ltd.
+  </p>
+ </td></tr></table></div></section></footer></html>

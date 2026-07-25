@@ -36,6 +36,32 @@ env:
   COMPONENT_NAME: "Options"
 
 jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build PRM-in-XML documentation
+        uses: gerph/riscos-prminxml-action@v1
+        with:
+          files: PRMinXML/Options.xml
+          output: output/docs
+          style: prm
+
+      - name: Package documentation
+        id: docsversion
+        run: |
+          version=$(git rev-parse --short HEAD)
+          leafname="Documentation-$version.zip"
+          cd output/docs && zip -q9r "../../$leafname" *
+          echo "leafname=$leafname" >> $GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: Documentation
+          path: ${{ steps.docsversion.outputs.leafname }}
+
   build-riscos:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
