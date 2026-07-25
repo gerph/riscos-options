@@ -1,5 +1,7 @@
 ; Options module
 
+#include "VersionNum"
+
 ; You should give your module a sensible name which describes its
 ; purpose both accurately and concisely. You must register any module
 ; names you use if they are to be distributed.
@@ -11,7 +13,7 @@ title-string: Options
 ; and - at worst - use the same name as in the title-string. The tail
 ; message may be used to indicate a variant of the module, or a
 ; copyright string.
-help-string: Options 0.01 (Alpha version)
+help-string: Options Module_MajorVersion_CMHG
 
 ; If you supply SWIs in your module, you must provide a base number at
 ; which these start. Each chunk is 64 entries long and must be

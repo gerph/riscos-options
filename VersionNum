@@ -1,0 +1,24 @@
+/* Options (0.02) 20:40:48 25/7/2026
+ *
+ * This file is automatically maintained by vmanage, do not edit manually.
+ *
+ */
+#define Module_MajorVersion_CMHG        0.02
+#define Module_MinorVersion_CMHG        
+#define Module_Date_CMHG                25 Jul 2026
+
+#define Module_MajorVersion             "0.02"
+#define Module_Version                  2
+#define Module_MinorVersion             ""
+#define Module_Date                     "25 Jul 2026"
+
+#define Module_ApplicationDate2         "25-Jul-26"
+#define Module_ApplicationDate4         "25-Jul-2026"
+
+#define Module_ComponentName            "Options"
+#define Module_ComponentBranch          ""
+#define Module_ComponentPath            "Sources/OS_Core/Options"
+
+#define Module_FullVersion              "0.02"
+#define Module_FullVersionAndDate       "0.02 (25 Jul 2026)"
+#define Module_HelpVersion              "0.02 (25 Jul 2026)"
