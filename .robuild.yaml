@@ -55,9 +55,9 @@ jobs:
       - RMLoad rm32.Options
 
       # Insert any testing here...
-      #- echo
-      #- echo *** Test that the module works ***
-      #- /TestModule
+      - echo
+      - echo *** Test that the module works ***
+      - /Test
 
       - echo
       - echo *** Kill the module ***
