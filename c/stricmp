@@ -1,5 +1,5 @@
 /*******************************************************************
- * File:     stricmp
+ * File:     mystricmp
  * Purpose:  Insensitive string compare
  * Author:   Justin Fletcher
  * Date:     30 Jul 1997
@@ -10,7 +10,7 @@
 #include "jstring.h"
 
 /*********************************************** <c> Gerph *********
- Function:     stricmp
+ Function:     mystricmp
  Description:  Case insensitive comparison
  Parameters:   str1 = one string
                str2 = the other one
@@ -18,7 +18,7 @@
                >0 if str1 > str2
                =0 if str1 = str2
  ******************************************************************/
-int stricmp(char *str1,char *str2)
+int mystricmp(char *str1,char *str2)
 {
   char one,two;
   int  index;
@@ -39,7 +39,7 @@ int stricmp(char *str1,char *str2)
 }
 
 /*********************************************** <c> Gerph *********
- Function:     stricmp_toacomma
+ Function:     mystricmp_toacomma
  Description:  Case insensitive comparison, terminating on a comma
                and returning the 'end point'
  Parameters:   str1 = one string (the main one, with commas in)
@@ -49,7 +49,7 @@ int stricmp(char *str1,char *str2)
                >0 if str1 > str2
                =0 if str1 = str2
  ******************************************************************/
-int stricmp_toacomma(char *str1,char *str2,char **strp)
+int mystricmp_toacomma(char *str1,char *str2,char **strp)
 {
   char one,two;
   while (*str1 >= 32 && *str1!=',')

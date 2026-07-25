@@ -10,7 +10,7 @@
 #include <stdlib.h> /* for size_t */
 
 /*********************************************** <c> Gerph *********
- Function:     stricmp
+ Function:     mystricmp
  Description:  Case insensitive comparison
  Parameters:   str1 = one string
                str2 = the other one
@@ -18,10 +18,10 @@
                >0 if str1 > str2
                =0 if str1 = str2
  ******************************************************************/
-int stricmp(char *str1,char *str2);
+int mystricmp(char *str1,char *str2);
 
 /*********************************************** <c> Gerph *********
- Function:     stricmp_toacomma
+ Function:     mystricmp_toacomma
  Description:  Case insensitive comparison, terminating on a comma
                and returning the 'end point'
  Parameters:   str1 = one string (the main one, with commas in)
@@ -31,7 +31,7 @@ int stricmp(char *str1,char *str2);
                >0 if str1 > str2
                =0 if str1 = str2
  ******************************************************************/
-int stricmp_toacomma(char *str1,char *str2,char **strp);
+int mystricmp_toacomma(char *str1,char *str2,char **strp);
 
 /*********************************************** <c> Gerph *********
  Function:     strleftcmp
@@ -64,40 +64,40 @@ char *strirightcmp(char *str,char *right);
 int strnicmp(char *str1,char *str2,size_t n);
 
 /*********************************************** <c> Gerph *********
- Function:     strdup
+ Function:     mystrdup
  Description:  Copy a string into a new block of memory
  Parameters:   x-> string to copy
  Returns:      pointer to new copy of string, or NULL if failed
  ******************************************************************/
-char *strdup(char *x);
+char *mystrdup(char *x);
 
 /*********************************************** <c> Gerph *********
- Function:     strndup
+ Function:     mystrndup
  Description:  Duplicate a string to a particular length
  Parameters:   str-> string to copy
                n = number of CHARACTERS to copy
  Returns:      pointer to new string
  ******************************************************************/
-char *strndup(char *str,int n);
+char *mystrndup(char *str,int n);
 
 /*********************************************** <c> Gerph *********
- Function:     strdupon
+ Function:     mystrdupon
  Description:  Copy a string on to the end of another string
  Parameters:   x-> initial string
                y-> string to add
  Returns:      pointer to new copy of string, or NULL if failed
  ******************************************************************/
-char *strdupon(char *x,char *y);
+char *mystrdupon(char *x,char *y);
 
 /*********************************************** <c> Gerph *********
- Function:     strduponto
+ Function:     mystrduponto
  Description:  Copy a string on the end of another string (and discard
                the original x string)
  Parameters:   x-> initial string
                y-> string to add
  Returns:      pointer to new copy of string, or NULL if failed
  ******************************************************************/
-char *strduponto(char *x,char *y);
+char *mystrduponto(char *x,char *y);
 
 /*********************************************** <c> Gerph *********
  Function:     stristr

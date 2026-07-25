@@ -25,7 +25,11 @@ EXPORTS    = ${EXP_C_H}.${COMPONENT}SWIs
 
 # Comma-separated list of paths to use for includes, such as:
 #	C:LibName.
+ifeq (${BUILD64},1)
+INCLUDES   = C:OSLib.
+else
 INCLUDES   = C:OSLib.Core.
+endif
 
 # Space separated list of libraries to link against, eg C:LibName.o.libLibName
 # (${CLIB} is implicit, unless NOCLIB = yes)

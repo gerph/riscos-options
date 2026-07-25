@@ -74,7 +74,7 @@ opts *optg_find(optg *grp,char *name)
 {
   while (grp!=NULL)
   {
-    if (stricmp(grp->group->name,name)==0)
+    if (mystricmp(grp->group->name,name)==0)
       return grp->group;
     grp=grp->next;
   }
@@ -133,7 +133,7 @@ opts *opt_create(char *name,opttype type)
   opts *opt=malloc(sizeof(opts));
   if (opt==NULL)
     return NULL;
-  opt->name=strdup(name);
+  opt->name=mystrdup(name);
   if (opt->name==NULL)
   {
     free(opt);
@@ -157,12 +157,12 @@ int opt_change(optval *opt,char *data)
   char *nval;
   if (data!=NULL)
   {
-    nval=strdup(data);
+    nval=mystrdup(data);
     if (nval==NULL)
       return 1;
   }
   else
-    nval=strdup("");
+    nval=mystrdup("");
 
 #ifdef DEBUG
   printf("Freeing data at %p from %p\n",opt->value,opt);
@@ -185,7 +185,7 @@ int opt_changeid(optval *opt,char *name)
   char *nval;
   if (name!=NULL)
   {
-    nval=strdup(name);
+    nval=mystrdup(name);
     if (nval==NULL)
       return 1;
   }
@@ -220,7 +220,7 @@ int opt_add(opts *opt,char *id,int indent,char *data)
   noptval->indent=indent;
   if (id!=NULL)
   {
-    noptval->id=strdup(id);      /* copy the optval */
+    noptval->id=mystrdup(id);      /* copy the optval */
     if (noptval->id==NULL)
     { free(noptval); return 1; } /* failed */
   }
@@ -229,7 +229,7 @@ int opt_add(opts *opt,char *id,int indent,char *data)
 
   if (data!=NULL)
   {
-    noptval->value=strdup(data); /* copy the optval */
+    noptval->value=mystrdup(data); /* copy the optval */
     if (noptval->value==NULL)
     { free(noptval->id); free(noptval); return 1; } /* failed */
   }
@@ -581,7 +581,7 @@ optval *opt_findiopt(opts *opt,char *find)
 #ifdef DEBUG
     printf("Looking at %s\n",id);
 #endif
-    if (id && stricmp(find,id)==0)
+    if (id && mystricmp(find,id)==0)
       return now;
     now=opt_nextopt(now);
   }

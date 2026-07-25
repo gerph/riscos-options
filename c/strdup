@@ -1,5 +1,5 @@
 /*******************************************************************
- * File:     strdup
+ * File:     mystrdup
  * Purpose:  Simple string duplication
  * Author:   Justin Fletcher
  * Date:     15 Apr 1999
@@ -10,12 +10,12 @@
 #include "jstring.h"
 
 /*********************************************** <c> Gerph *********
- Function:     strdup
+ Function:     mystrdup
  Description:  Copy a string into a new block of memory
  Parameters:   x-> string to copy
  Returns:      pointer to new copy of string, or NULL if failed
  ******************************************************************/
-char *strdup(char *x)
+char *mystrdup(char *x)
 {
   char *n=malloc(strlen(x)+1);
   if (n!=NULL) strcpy(n,x);
@@ -23,13 +23,13 @@ char *strdup(char *x)
 }
 
 /*********************************************** <c> Gerph *********
- Function:     strndup
+ Function:     mystrndup
  Description:  Duplicate a string to a particular length
  Parameters:   str-> string to copy
                n = number of CHARACTERS to copy
  Returns:      pointer to new string
  ******************************************************************/
-char *strndup(char *str,int n)
+char *mystrndup(char *str,int n)
 {
   char *s=malloc(n+1);
   if (s!=NULL)

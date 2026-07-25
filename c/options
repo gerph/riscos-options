@@ -41,7 +41,7 @@ int readenum(char *string,char *list)
   while (*list>=' ')
   {
     /* printf("Compare %s:%s\n",string,list); */
-    if (stricmp_toacomma(list,string,&list)==0)
+    if (mystricmp_toacomma(list,string,&list)==0)
       return num;
     while (*list>=' ' && *list!=',')
       list++;
@@ -298,7 +298,7 @@ _kernel_oserror *writegroup(optg *grps,char *grpname,int flags,char **buffer)
             {
               if (entry)
               {
-                if (stricmp(entry[0],id)==0)
+                if (mystricmp(entry[0],id)==0)
                   break;
               }
               entry+=2;
@@ -588,7 +588,7 @@ int openfile(opentype type, char *file, char *app, char *dir)
     return BAD_OUTOFMEMORY; /* Out of memory */
   }
   thing->groups=opts;
-  thing->writefile=strdup(write);
+  thing->writefile=mystrdup(write);
   thing->needtowrite=0;
 
   thing->next=List; List=thing; /* Link to chain */
