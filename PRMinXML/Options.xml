@@ -305,7 +305,7 @@ group of that name, or the type of the group in the file is not the one requeste
     <p>
     <value-table head-number="Value" head-value="Meaning">
      <value number="0">Options format</value>
-     <value number="1">List format (not supported by this SWI)</value>
+     <value number="1">List format</value>
     </value-table>
     </p>
     Other values are reserved.
@@ -318,21 +318,22 @@ group of that name, or the type of the group in the file is not the one requeste
 <use>
 <p>
 This SWI is used to write data from a description block to a file. The contents of the
-buffer are in the options format described for <reference type="swi" name="Options_ReadGroup"/>,
-with the strings anywhere in memory. Every entry in the table must have a tag; the
-table is ended by a pair of null pointers.
+buffer are in the format of the group, as described for
+<reference type="swi" name="Options_ReadGroup"/>. For an options group the strings can be
+anywhere in memory, every entry in the table must have a tag, and the table is ended by a
+pair of null pointers. For a list group the buffer holds the items, each ended by a zero
+byte, followed by one more zero byte.
 </p>
 <p>
-The group is made to contain exactly the tags given: a tag which is already in the group has
-its value changed, a tag which is not is added at the end, and a tag which is in the group
-but not in the buffer is removed. Comments and blank lines in the group are kept. If there is
-no group of that name, it is created. The type of the group must be that of the group in the
-file.
+An options group is made to contain exactly the tags given: a tag which is already in the
+group has its value changed, a tag which is not is added at the end, and a tag which is in the
+group but not in the buffer is removed. Comments and blank lines in the group are kept. A list
+group has all of its items replaced by those in the buffer. If there is no group of that name,
+it is created. The type of the group must be that of the group in the file.
 </p>
 <p>
-Writing a group in list format with this SWI is not supported; it returns the error
-<reference type="error" name="Options_BadType"/>, and the file is not marked as changed. The
-items of a list group are written with <reference type="swi" name="Options_WriteValue"/>.
+The error <reference type="error" name="Options_BadType"/> is returned if the group type is not
+one that the SWI can write.
 </p>
 </use>
 <related>
@@ -590,7 +591,7 @@ The module allocates the errors from &hex;818240.
    <change>Described the group type declaration, quoting and line continuation of the file
    format, and what is written back. Corrected the behaviour of the SWIs, including the exit
    registers of Options_ReadBoolean and the errors and not-found results of each call, and
-   added the error messages.</change>
+   added the error messages. Options_WriteGroup writes list groups.</change>
   </revision>
  </history>
 
