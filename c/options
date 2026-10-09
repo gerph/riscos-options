@@ -330,11 +330,12 @@ _kernel_oserror *writegroup(optg *grps,char *grpname,int flags,char **buffer)
         /* Now add the entries we've been given */
         while (*entry)
         {
-          opt_add(list,entry,0,NULL);
+          if (opt_add(list,entry,0,NULL))
+            return err_OutOfMemory;
           entry+=strlen(entry)+1;
         }
       }
-      break;
+      return NULL;
   }
   return err_BadType;
 }
@@ -527,7 +528,6 @@ _kernel_oserror *writevalue(optg *grps,char *grpname,int flags,char *id,char *va
             return err_OutOfMemory;
           return NULL;
         }
-        printf("OptByNum: %i\n",num);
         oval=opt_findoptbynum(list,num);
         if (oval==NULL)
           return err_BadListItem;
