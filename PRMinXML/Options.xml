@@ -43,21 +43,44 @@ There is no user interface provided by this module.
 
 <subsection title="Programmer interface">
 <p>
-The programmer interface is incomplete and may change without notice.
+A client opens an options file with <reference type="swi" name="Options_OpenFile"/>, which
+reads the whole file and returns a handle. It then reads and writes groups and single
+values through that handle, and closes the file with
+<reference type="swi" name="Options_CloseFile"/>. Changes are made to the copy of the file
+held by the module, and are written to the file only when it is closed, and only if
+something was changed. A file which does not exist is treated as an empty one, and is
+created when it is closed after changes have been made to it.
+</p>
+<p>
+The handle is an opaque number. A handle which is not that of an open file is refused with
+the error <reference type="error" name="Options_BadHandle"/>, including one which has been
+closed.
+</p>
+<p>
+Strings returned by the module point into its copy of the file. They are read only, and
+must be copied if they are needed after the file is changed or closed.
 </p>
 </subsection>
 
 <subsection title="Data formats">
 <p>
-Options files are standard RISC OS text files. Any whitespace (space or tab) at the
-beginning or end of a line is ignored. Any line where the first non-whitespace character
-is <userinput>#</userinput> is a comment line and is ignored, as is any line consisting only
-of whitespace.
+Options files are RISC OS text files, in which each line ends with a newline. The last line
+of the file must end with a newline too: a final line which does not is ignored. A line which
+ends with a backslash is joined to the line which follows it, and the backslash is removed.
+</p>
+<p>
+A line which starts with <userinput>#</userinput> is a comment line. The module keeps
+comments, and blank lines, so they are still in the file when it is written out; they are
+not part of any group's contents when it is read with
+<reference type="swi" name="Options_ReadGroup"/>.
 </p>
 <p>
 The file consists of a series of groups, delimited by group name specifiers. A group name
 specifier starts with <userinput>[</userinput>, followed by the name (which may contain
-spaces), followed by <userinput>]</userinput>.
+spaces), followed by <userinput>]</userinput>, and optionally by the word
+<userinput>Type</userinput> and a number which gives the format of the group. A line which
+starts with <userinput>[</userinput> but has no closing <userinput>]</userinput> ends the
+reading of the file: nothing after it is read.
 </p>
 <p>
 The groups themselves are in one of two formats (although further formats may be added in
@@ -65,10 +88,15 @@ future):
 </p>
 <p>
 <list type="unordered">
- <item><p>The <em>list format</em> is a simple list of newline-terminated strings.</p></item>
- <item><p>The <em>options format</em> consists of tag, value pairs in the form
+ <item><p>The <em>options format</em>, which is the format of a group with no type or with
+ <userinput>Type 0</userinput>, consists of tag, value pairs in the form
  <userinput>&lt;spaces&gt;tag name&lt;spaces&gt;:&lt;spaces&gt;value&lt;spaces&gt;</userinput>,
- where <userinput>&lt;spaces&gt;</userinput> is zero or more spaces or tabs.</p></item>
+ where <userinput>&lt;spaces&gt;</userinput> is zero or more spaces or tabs. A value may be
+ written in double quotes, to keep spaces at its start or end; the quotes are not part of
+ the value. A value which starts with a quote but does not end with one, and a line with no
+ <userinput>:</userinput> in it, are not options: the line is kept as a blank line.</p></item>
+ <item><p>The <em>list format</em>, which is the format of a group declared with
+ <userinput>Type 1</userinput>, is a simple list of newline-terminated strings.</p></item>
 </list>
 </p>
 <p>
@@ -81,17 +109,29 @@ An example options file for an application called "widget"
 <br/><br/>
 # choices file for widget
 
-[auto load]
-# a list of files to load when starting widget
-ADFS::4.$.afile
-ADFS::4.$.somedir.anotherfile
-ADFS::4.$.thingy
-
 [misc options]
 somevalue    : 42
 window width : 332
 auto open    : Yes
+title        : "  spaced  "
+
+[auto load] Type 1
+# a list of files to load when starting widget
+ADFS::4.$.afile
+ADFS::4.$.somedir.anotherfile
+ADFS::4.$.thingy
 </extended-example>
+</p>
+<p>
+When the module writes a file, it keeps the groups in their original order, and adds new
+groups at the end. Each option is written as <userinput>tag: value</userinput>, whatever the
+spacing was in the file which was read, and a value with spaces at its start or end is
+written in quotes. A group in list format is written with its <userinput>Type 1</userinput>.
+</p>
+<p>
+The parser copes with files which have been edited by hand: a line it cannot use is kept as
+a blank line and the rest of the file is still read. The one exception is a group name
+specifier with no closing <userinput>]</userinput>, described above.
 </p>
 <p>
 When a group is read with <reference type="swi" name="Options_ReadGroup"/> or written with
@@ -99,14 +139,15 @@ When a group is read with <reference type="swi" name="Options_ReadGroup"/> or wr
 memory in one of two layouts, matching the group format.
 </p>
 <p>
-For an options group, the block holds a series of tag/value pointer pairs, terminated by a
-null pair:
+For an options group, the block starts with a table of tag and value pointers, terminated
+by a pair of null pointers. When a group is read, the strings the pointers refer to follow
+the table in the same block, so the block needs 8 bytes for each tag, 8 bytes for the
+terminator, and the length of each string including its terminating zero.
 </p>
 <p>
 <offset-table head-number="Offset" head-name="Name" head-data-size="Size" head-value="Contents">
  <offset number="0" name="tag" data-size="4">Pointer to tag 0</offset>
- <offset number="4" name="value" data-size="4">Pointer to value 0, or NULL if no value is set
- (for example in list groups)</offset>
+ <offset number="4" name="value" data-size="4">Pointer to value 0, or NULL if no value is set</offset>
  <offset number="x" state="content">Repeated tag/value pointer pairs</offset>
  <offset number="x" name="tag" data-size="4">0</offset>
  <offset number="x+4" name="value" data-size="4">0</offset>
@@ -114,7 +155,7 @@ null pair:
 </p>
 <p>
 For a list format group, the buffer is filled with a series of null-terminated strings
-immediately following one another.
+immediately following one another, followed by two further zero bytes.
 </p>
 </subsection>
 
@@ -147,12 +188,12 @@ This module allocates the <userinput>Options_</userinput> SWI chunk at &hex;52F8
     </value-table>
     </p>
    </bit>
-   <bit number="2-31" state="reserved">Reserved, must be 0</bit>
+   <bit number="2-31" state="reserved">Reserved, should be 0</bit>
   </bitfield-table>
  </register-use>
  <register-use number="1">Pointer to filename, or leafname</register-use>
- <register-use number="2">Pointer to application name</register-use>
- <register-use number="3">Pointer to directory to use</register-use>
+ <register-use number="2">Pointer to application name (access method 1 only)</register-use>
+ <register-use number="3">Pointer to directory to use (access method 1 only)</register-use>
 </entry>
 <exit>
  <register-use number="0">Opaque options handle</register-use>
@@ -160,18 +201,27 @@ This module allocates the <userinput>Options_</userinput> SWI chunk at &hex;52F8
 <use>
 <p>
 This SWI is used to open a specific file, or a <filename type="riscos">Choices:</filename>
-file, for access. When opening a specific file (type 0), only that file is written to and
+file, for access. When opening a specific file (method 0), only that file is written to and
 read from.
 </p>
 <p>
-When opening a <filename type="riscos">Choices:</filename> file (type 1), the file read
-comes from <filename type="riscos">Choices:&lt;application&gt;.&lt;leafname&gt;</filename>
+When opening a <filename type="riscos">Choices:</filename> file (method 1) and the system
+variable <sysvar>Choices$Write</sysvar> is set, the file read comes from
+<filename type="riscos">Choices:&lt;application&gt;.&lt;leafname&gt;</filename>
 if that is present, or if not, from
 <filename type="riscos">&lt;directory&gt;.&lt;leafname&gt;</filename>. This provides
 compatibility for applications written for older systems. When writing, data is written to
-<filename type="riscos">&lt;Choices$Write&gt;.&lt;application&gt;.&lt;leafname&gt;</filename>
-unless the <filename type="riscos">Choices:</filename> structure is not present, in which
-case it is written to <filename type="riscos">&lt;directory&gt;.&lt;leafname&gt;</filename>.
+<filename type="riscos">&lt;Choices$Write&gt;.&lt;application&gt;.&lt;leafname&gt;</filename>,
+and the directories leading to it are created. When <sysvar>Choices$Write</sysvar> is not
+set, because the <filename type="riscos">Choices:</filename> structure is not present, the
+file is both read from and written to
+<filename type="riscos">&lt;directory&gt;.&lt;leafname&gt;</filename>.
+</p>
+<p>
+A file which does not exist is opened as an empty file. The error
+<reference type="error" name="Options_BadOpenType"/> is returned if the access method is not
+0 or 1, and <reference type="error" name="Options_CantOpen"/> if the file could not be read,
+or there is not enough memory to hold it.
 </p>
 </use>
 <related>
@@ -186,8 +236,11 @@ case it is written to <filename type="riscos">&lt;directory&gt;.&lt;leafname&gt;
 </entry>
 <use>
 <p>
-This SWI is used to close an Options file session. Any changes are written out to the
-relevant file. An error may be produced if the options file could not be written.
+This SWI is used to close an Options file session. If any changes have been made they are
+written out to the relevant file, and the error
+<reference type="error" name="Options_CantWriteFile"/> is returned if that could not be
+done. The file is closed, and the handle is no longer valid, whether or not the file could be
+written.
 </p>
 </use>
 <related>
@@ -224,7 +277,16 @@ relevant file. An error may be produced if the options file could not be written
 <use>
 <p>
 This SWI is used to read a group structure into a block of memory. The block is in one of
-the two formats described in Data formats, depending on the group type requested.
+the two formats described in Data formats, depending on the group type requested, and holds
+the options or items of the group, without its comments or blank lines.
+</p>
+<p>
+If the buffer is not large enough, nothing is written and the negative of the size needed
+is returned, so a call with a length of -1 finds the size to use.
+</p>
+<p>
+The error <reference type="error" name="Options_CantConvert"/> is returned if there is no
+group of that name, or the type of the group in the file is not the one requested.
 </p>
 </use>
 <related>
@@ -243,7 +305,7 @@ the two formats described in Data formats, depending on the group type requested
     <p>
     <value-table head-number="Value" head-value="Meaning">
      <value number="0">Options format</value>
-     <value number="1">List format</value>
+     <value number="1">List format (not supported by this SWI)</value>
     </value-table>
     </p>
     Other values are reserved.
@@ -256,9 +318,21 @@ the two formats described in Data formats, depending on the group type requested
 <use>
 <p>
 This SWI is used to write data from a description block to a file. The contents of the
-buffer should be in the same format as for <reference type="swi" name="Options_ReadGroup"/>.
-The group type must match that of the group being written to, otherwise an error is
-generated.
+buffer are in the options format described for <reference type="swi" name="Options_ReadGroup"/>,
+with the strings anywhere in memory. Every entry in the table must have a tag; the
+table is ended by a pair of null pointers.
+</p>
+<p>
+The group is made to contain exactly the tags given: a tag which is already in the group has
+its value changed, a tag which is not is added at the end, and a tag which is in the group
+but not in the buffer is removed. Comments and blank lines in the group are kept. If there is
+no group of that name, it is created. The type of the group must be that of the group in the
+file.
+</p>
+<p>
+Writing a group in list format with this SWI is not supported; it returns the error
+<reference type="error" name="Options_BadType"/>, and the file is not marked as changed. The
+items of a list group are written with <reference type="swi" name="Options_WriteValue"/>.
 </p>
 </use>
 <related>
@@ -285,16 +359,23 @@ generated.
    <bit number="8-31" state="reserved">Reserved</bit>
   </bitfield-table>
  </register-use>
- <register-use number="3">Pointer to tag name</register-use>
+ <register-use number="3">Pointer to tag name, or item number for list format</register-use>
 </entry>
 <exit>
  <register-use number="0">Pointer to a null terminated string containing the value for the
- tag</register-use>
+ tag, or 0 if there is no such group, tag or item</register-use>
 </exit>
 <use>
 <p>
 This SWI is used to read the value of a single option. The returned string should be
-considered read only.
+considered read only. For a list format group, R3 is the number of the item to read; the
+first item is number 0, and comments and blank lines are not counted. The result is the
+text of the item.
+</p>
+<p>
+A tag which is present with no value gives an empty string. The error
+<reference type="error" name="Options_CantConvert"/> is returned if the group is not of the
+type requested.
 </p>
 </use>
 <related>
@@ -321,12 +402,25 @@ considered read only.
    <bit number="8-31" state="reserved">Reserved</bit>
   </bitfield-table>
  </register-use>
- <register-use number="3">Pointer to tag name, or line number for list format</register-use>
- <register-use number="4">Pointer to tag value</register-use>
+ <register-use number="3">Pointer to tag name, or item number for list format (-1 to add an
+ item at the end)</register-use>
+ <register-use number="4">Pointer to tag value (or item text, for list format)</register-use>
 </entry>
 <use>
 <p>
-This SWI is used to write the value of a single option.
+This SWI is used to write the value of a single option. If the tag is already in the group
+its value is changed, otherwise it is added at the end. If there is no group of that name it
+is created, with the type given in the flags.
+</p>
+<p>
+For a list format group, R3 is the number of the item to change, counted as for
+<reference type="swi" name="Options_ReadValue"/>, or -1 to add the text in R4 as a new item
+at the end of the list. An item number which does not exist gives the error
+<reference type="error" name="Options_BadListItem"/>.
+</p>
+<p>
+The error <reference type="error" name="Options_CantConvert"/> is returned if the group is
+not of the type requested.
 </p>
 </use>
 <related>
@@ -354,11 +448,14 @@ This SWI is used to write the value of a single option.
    <bit number="8-31" state="reserved">Reserved</bit>
   </bitfield-table>
  </register-use>
- <register-use number="3">Pointer to tag name, or line number for list format</register-use>
+ <register-use number="3">Pointer to tag name, or item number for list format</register-use>
 </entry>
 <use>
 <p>
-This SWI is used to remove a single option.
+This SWI is used to remove a single option, or a single item of a list. Nothing happens, and
+no error is returned, if the group, tag or item does not exist. The error
+<reference type="error" name="Options_CantConvert"/> is returned if the group is not of the
+type requested.
 </p>
 </use>
 <related>
@@ -371,6 +468,9 @@ This SWI is used to remove a single option.
 <entry>
  <register-use number="0">Pointer to a string</register-use>
 </entry>
+<exit>
+ <register-use number="0">The boolean value: 0 for FALSE, or 1 for TRUE</register-use>
+</exit>
 <use>
 <p>
 This SWI converts a string into a boolean value.
@@ -380,6 +480,7 @@ The strings are converted as follows, ignoring case: <userinput>true</userinput>
 <userinput>yes</userinput>, <userinput>on</userinput>, and <userinput>1</userinput> are
 converted to TRUE (1). The strings <userinput>0</userinput>, <userinput>no</userinput>,
 <userinput>off</userinput>, and <userinput>false</userinput> are converted to FALSE (0).
+Any other string returns the error <reference type="error" name="Options_BadBool"/>.
 </p>
 </use>
 </swi-definition>
@@ -396,58 +497,59 @@ converted to TRUE (1). The strings <userinput>0</userinput>, <userinput>no</user
 </exit>
 <use>
 <p>
-This SWI converts a string into an index value. The string being matched can contain any
-character except control characters and a comma. The strings are matched case
-insensitively.
+This SWI converts a string into an index value. The first string in the list is index 0.
+The string being matched can contain any character except control characters and a comma.
+The whole of the string must match one of the strings in the list, ignoring case. Spaces
+in the list are part of the strings in it, so the list should have none around the commas.
 </p>
 </use>
 </swi-definition>
 
 </section>
 
-<section title="Testing scheme">
+<section title="Error messages">
+<p>
+The module allocates the errors from &hex;818240.
+</p>
 
-<subsection title="Acceptance test">
-<p>
-The options file parser must be capable of coping with very malformed files. Users, and
-programmers, will edit the files by hand and often get that wrong. At worst the program
-should fail to read a few options, but even in the worst cases the vast majority of the
-file should be able to be read.
-</p>
-<p>
-The layout of option files must be preserved, as it will be laid out in such a way as to
-make it easier for the human reader. So, any whitespace must remain in the file after it is
-modified, as should any comments. If no changes are made to the options then the file
-written out should be identical to the file read in.
-</p>
-<p>
-Transition to the Options system should be as painless as possible for both programmers
-and users.
-</p>
-</subsection>
+<error-definition name="Options_BadOpenType" number="818240" description="Bad OpenFile type">
+<use><p>The access method given to <reference type="swi" name="Options_OpenFile"/> was not 0 or 1.</p></use>
+</error-definition>
 
-<subsection title="Test strategy">
-<p>
-The Options module should be tested by a number of programmers, in their own applications,
-as well as in some of the OS components.
-</p>
-</subsection>
+<error-definition name="Options_OutOfMemory" number="818241" description="Could not allocate memory">
+<use><p>There was not enough memory to add to a group in a file which is open.</p></use>
+</error-definition>
+
+<error-definition name="Options_CantOpen" number="818242" description="Could not open file">
+<use><p>The file given to <reference type="swi" name="Options_OpenFile"/> could not be read, or there was not enough memory to hold it.</p></use>
+</error-definition>
+
+<error-definition name="Options_BadHandle" number="818243" description="Bad options handle">
+<use><p>The handle given is not that of a file which is open.</p></use>
+</error-definition>
+
+<error-definition name="Options_BadBool" number="818244" description="Bad boolean value">
+<use><p>The string given to <reference type="swi" name="Options_ReadBoolean"/> is not one of the strings it recognises.</p></use>
+</error-definition>
+
+<error-definition name="Options_CantWriteFile" number="818245" description="Could not write file">
+<use><p>The changes to the file could not be written when it was closed, because the file or a directory leading to it could not be created.</p></use>
+</error-definition>
+
+<error-definition name="Options_BadType" number="818246" description="Option type not known">
+<use><p>The group type given to <reference type="swi" name="Options_WriteGroup"/> is not one that it can write.</p></use>
+</error-definition>
+
+<error-definition name="Options_CantConvert" number="818247" description="Option type mismatch">
+<use><p>The group requested does not exist, or is of a different type to the one requested: for example, a group in list format read as an options group.</p></use>
+</error-definition>
+
+<error-definition name="Options_BadListItem" number="818248" description="Option list item not known">
+<use><p>The item number given to <reference type="swi" name="Options_WriteValue"/> for a list is not that of an item in the list.</p></use>
+</error-definition>
 
 </section>
 
-<section title="Non-compliance">
-<p>
-<fixme>This section has not been written.</fixme>
-</p>
-</section>
-
-<section title="Outstanding issues">
-<p>
-The implementation of the read and write single value SWIs has to be worked on, but the
-whole file could be parsed when it is first opened. That way the values would already be
-in memory, so direct pointers could be returned.
-</p>
-</section>
 
 </chapter>
 
@@ -483,6 +585,12 @@ in memory, so direct pointers could be returned.
   <revision number="6" author="Charles Ferguson" date="25 Jul 2026" title="PRM-in-XML conversion">
    <change>Converted the specification from HTML into PRM-in-XML format, retaining the
    original document history and content.</change>
+  </revision>
+  <revision number="7" author="Charles Ferguson" date="9 Oct 2026" title="Updated for the implementation">
+   <change>Described the group type declaration, quoting and line continuation of the file
+   format, and what is written back. Corrected the behaviour of the SWIs, including the exit
+   registers of Options_ReadBoolean and the errors and not-found results of each call, and
+   added the error messages.</change>
   </revision>
  </history>
 
